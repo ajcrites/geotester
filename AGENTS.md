@@ -10,7 +10,7 @@
 ## Scope and stack
 
 * Build a configurable geography quiz starting with the 50 US states; exclude DC and territories initially.
-* Use React and Vite. TypeScript is the plan's proposed language default. Task 02 adds Prettier and linting.
+* Use React, Vite, TypeScript, Prettier, and ESLint. Keep tool configuration in `prettier.config.ts` and `eslint.config.ts`. Write utility scripts in TypeScript or Bash, not JavaScript modules.
 * Use hardcoded data and local assets. No backend, database, accounts, or external runtime API is needed for the current scope. Do not commit collected data or assets; regenerate them through version-controlled scripts. Keep schemas, types, application logic, collection scripts, and provenance documentation in version control.
 * Keep property capabilities explicit: every property supports omit and show, while answer modes vary. Do not assume future properties support fill-in or multiple choice.
 * Treat the plan's proposed defaults as implementation assumptions, not confirmed user decisions. Document changes to those assumptions.
@@ -18,7 +18,7 @@
 
 ## Folder conventions
 
-The application folders below are planned for later tasks; create them when needed.
+Follow these folder conventions; introduce new folders when needed.
 
 * `data/`: collected state records and property metadata; not version controlled.
 * `data/assets/`: collected outlines and flags referenced by those records; not version controlled.
@@ -26,7 +26,7 @@ The application folders below are planned for later tasks; create them when need
 * `src/domain/`: framework-independent types, configuration validation, question generation, answer evaluation, and scoring.
 * `src/features/`: setup, quiz, and results UI, grouped by feature.
 * `src/components/`: UI shared by multiple features, introduced when reuse exists.
-* `scripts/`: reusable utilities, including Task 03's data and asset collection scripts. Document invocation, inputs, outputs, and network needs.
+* `scripts/`: reusable utilities, including data and asset collection scripts. Document invocation, inputs, outputs, and network needs.
 * `docs/`: architecture, data provenance, and other durable project documentation.
 
 ## Validation and handoff
@@ -38,9 +38,11 @@ The application folders below are planned for later tasks; create them when need
 
 * Run checks appropriate to the task and report actual results. Never claim an unrun check passed.
 * For documentation changes, verify links, consistency with the plan, and Markdown conventions; no application tests are needed.
-* Once Task 02 establishes package scripts, use the documented format, lint, and build commands for relevant code changes. Add meaningful domain tests as quiz behavior is implemented. Remove references to completed tasks that are obviated by these updates (e.g. this line).
+* Lefthook runs formatting, lint, and type checks before commits. Keep `lefthook.yml` aligned with the package scripts; install hooks with `npm ci` and verify them with `npx lefthook run pre-commit --force`.
+* Use `npm run format:check`, `npm run lint`, and `npm run typecheck` for relevant code changes. Run `npm run build` when verifying production output, not as a substitute for type checking. Add meaningful domain tests as quiz behavior is implemented.
 * Verify UI changes at desktop and mobile widths, including keyboard interaction when applicable.
 * For data collection, verify completeness, unique IDs, local asset references, visual readability, authoritative sources, and redistribution terms.
+* Keep dated implementation and validation notes in `IMPLEMENTATION_PLAN.md` under the relevant task; keep this file focused on durable instructions.
 * Keep implemented behavior distinct from future design. Update documentation alongside behavior changes.
 * Do not invent setup commands before the corresponding tooling exists.
 
@@ -48,3 +50,11 @@ The application folders below are planned for later tasks; create them when need
 
 * Use `*` for Markdown bulleted lists, including documentation, commit messages, and pull request descriptions. Do not use hyphens as bullet markers.
 * Write clear, concise instructions and record consequential decisions where later tasks can find them.
+
+## Commit messages
+
+* Use semantic commit messages: `type: description` or `type(scope): description` when a scope adds useful context.
+* Choose a type that describes the change: `feat` for features, `fix` for bug fixes, `docs` for documentation, `refactor` for restructuring without behavior changes, `test` for tests, and `chore`, `build`, or `ci` for maintenance and tooling.
+* Use a concise, imperative description of the change, for example `feat: add local data validation`. Reference task numbers in the commit body when useful.
+* Mark breaking changes with `!` after the type or scope and explain them in a `BREAKING CHANGE:` footer.
+* Use asterisks for bulleted lists in commit bodies, as in other Markdown.

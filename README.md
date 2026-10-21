@@ -1,26 +1,70 @@
 # Geotester
 
-A planned geography quiz web application, starting with the 50 US states. Users will choose which properties to see as clues and which to answer, complete a quiz, and receive a score.
+A geography quiz application, starting with the 50 US states. The React foundation provides a responsive homepage and local data tooling.
 
-## Current state
+## Current capabilities
 
-Task 01 provides repository instructions, architecture documentation, a directory for reusable utility scripts, and `.gitignore` for local data and generated files. The application has not been scaffolded. There are no installed dependencies, package scripts, state data, or quiz assets yet.
+* Implemented: React/Vite/TypeScript setup, responsive homepage, local data and sample image delivery, structural data validation, formatting, linting, and type checking.
+* Not implemented: complete state data collection, quiz configuration, question progression, scoring, and results. Quiz and results components are placeholders; they are not reachable from the homepage.
 
-Task 01 is complete and human-verified. Task 02 — React application foundation — is next. It will establish React, Vite, TypeScript, Prettier, linting, and verified installation, development, and build instructions. No application commands are available yet.
+## Development
 
-## Planned experience
+Requires Node.js 22.18+ and npm. From the repository root:
 
-* Configure state name, capital, shape, and flag as omitted properties, shown clues, or questions, according to each property's supported modes.
-* Answer text properties through fill-in or multiple choice; answer visual properties through image choices.
-* Select quiz length with a slider defaulting to 50, with clickable shortcuts at 10, 20, 30, 40, and 50.
-* Use local state data and assets without a backend or runtime data service.
-* Recreate untracked `data/` and `data/assets/` through tracked collection scripts. Development will serve or copy these files, and builds will copy them into output; this tooling is planned for Tasks 02–03.
+```sh
+npm ci
+npm run dev
+```
+
+Open the local URL printed by Vite. No dataset is needed for the foundation: Home explains that data has not been collected. The setup button is disabled until quiz functionality is implemented. Users will progress through setup, questions, and results using on-screen controls; there is no top-level view navigation.
+
+```sh
+npm run format        # Apply Prettier formatting
+npm run format:check  # Check formatting
+npm run lint          # ESLint, including React hooks
+npm run typecheck     # Check application, scripts, and tool configuration types
+npm run build         # Build the production application into dist/
+npm run preview       # Serve the production build locally
+```
+
+Formatting targets TypeScript, TSX, CSS, JSON, and HTML, using `.gitignore` to skip generated files. Markdown is reviewed separately to preserve required `*` bullets. Tool configuration lives in `prettier.config.ts` and `eslint.config.ts`; scripts run as TypeScript through `tsx`.
+
+## Commit checks
+
+`npm ci` installs Lefthook's Git hooks through the `prepare` script. For commits with staged changes, the pre-commit hook runs Prettier (`npm run format:check`), ESLint (`npm run lint`), and TypeScript (`npm run typecheck`) in parallel across the working tree. A failed check blocks the commit. The hook checks formatting without modifying or staging files; use `npm run format` to fix formatting before retrying.
+
+Run the same hook manually with `npx lefthook run pre-commit --force`, even without staged files, or reinstall it with `npm run prepare`. Configuration lives in [lefthook.yml](lefthook.yml).
+
+## Local data
+
+No command automatically collects or downloads data. A fresh checkout serves and builds with an explicit empty-data placeholder.
+
+To check data and image delivery with one clearly fictional sample:
+
+```sh
+npm run data:fixture
+npm run dev
+npm run build
+```
+
+The installer refuses to overwrite any existing `data/` directory. Home shows the sample name, capital, and SVG; the sample is not playable geography data. To return to empty mode, move `data/` outside the repository, then restart Vite or rebuild. Restart Vite after any data changes.
+
+* Source: ignored `data/dataset.json` and `data/assets/`.
+* On server startup and build, a local Vite plugin validates the source, clears stale `public/data/`, and copies source files into that ignored directory. Vite serves it under `/data/` and copies it into `dist/data/` for production.
+* The plugin generates `status.json` with `empty`, `sample`, or `ready` status and record count. Empty mode is allowed only when `data/` is absent; a present directory without its manifest is an error.
+* Invalid manifests, duplicate IDs or abbreviations, missing fields, unsafe paths, and missing images stop serve/build with actionable errors.
+* `npm run data:validate` requires a nonsample dataset with exactly 50 records and valid local assets. It rejects empty or sample data. Nonsample data must pass that same validation during serve/build.
+* Validation currently checks structure and asset references; it does not verify authoritative state membership, factual accuracy, property metadata/capabilities, or provenance. A full dataset collection command is not available yet.
+
+The initial manifest contract is `schemaVersion: 1`, an explicit `sample` boolean, and a nonempty `states` array. Records have nonempty `id`, `name`, `abbreviation` (two uppercase letters), `capital`, `shape`, and `flag`. Asset references are relative local paths beginning with `assets/`. See [the fixture](scripts/fixtures/dataset.json) and [domain types](src/domain/data.ts). Sample assets are project-authored geometric illustrations, not collected state assets.
 
 ## Project documentation
 
-* [Implementation plan](IMPLEMENTATION_PLAN.md): requirements, proposed defaults, task dependencies, and acceptance criteria.
-* [Codex repository instructions](AGENTS.md): scope, conventions, validation, and handoff expectations.
-* [Architecture](docs/ARCHITECTURE.md): intended domain model, property capabilities, quiz flow, and asset handling.
-* [Utility scripts](scripts/README.md): script conventions and planned data collection utilities.
+* [Implementation plan](IMPLEMENTATION_PLAN.md): requirements, task status, and human verification.
+* [Repository instructions](AGENTS.md): conventions and handoff workflow.
+* [Architecture](docs/ARCHITECTURE.md): implemented foundation and intended quiz design.
+* [Utility scripts](scripts/README.md): local data tooling.
 
-Read the implementation plan before starting a task. Its proposed defaults remain assumptions unless separately confirmed; documentation describes planned behavior until implementation and validation are recorded.
+## Commit convention
+
+Use semantic commit messages in the form `type: description` or `type(scope): description`, for example `feat: add local data validation`. Common types include `feat`, `fix`, `docs`, `refactor`, `test`, and `chore`. See [repository instructions](AGENTS.md#commit-messages) for the full convention.

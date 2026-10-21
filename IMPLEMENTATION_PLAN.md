@@ -19,14 +19,14 @@ Build a React web application for configurable geography quizzes, starting with 
 
 ### Initial property capabilities
 
-| Property | Omit | Show | Fill-in | Multiple choice |
-| --- | --- | --- | --- | --- |
-| State name | Yes | Yes | Yes | Yes |
-| Capital | Yes | Yes | Yes | Yes |
-| Shape | Yes | Yes | No | Yes, image options |
-| Flag | Yes | Yes | No | Yes, image options |
+| Property   | Omit | Show | Fill-in | Multiple choice    |
+| ---------- | ---- | ---- | ------- | ------------------ |
+| State name | Yes  | Yes  | Yes     | Yes                |
+| Capital    | Yes  | Yes  | Yes     | Yes                |
+| Shape      | Yes  | Yes  | No      | Yes, image options |
+| Flag       | Yes  | Yes  | No      | Yes, image options |
 
-Omit hides a property entirely. Show displays it as a clue. Fill-in asks for a text answer. Multiple choice asks the user to select an answer from four options. 
+Omit hides a property entirely. Show displays it as a clue. Fill-in asks for a text answer. Multiple choice asks the user to select an answer from four options.
 
 ### Proposed defaults and behavior
 
@@ -92,7 +92,7 @@ Human verification checklist:
 
 ## Task 02 — React application foundation
 
-Status: Not started
+Status: Complete
 
 Goal: Create a runnable application and basic development workflow.
 
@@ -114,6 +114,47 @@ Acceptance criteria:
 
 Dependencies: Task 01.
 
+Initial implementation and agent validation notes (2026-10-21; superseded where revised below):
+
+* Added React, Vite, TypeScript, ESLint, Prettier, a lockfile, and documented install/dev/format/lint/build/preview commands. Markdown is excluded from Prettier to preserve required asterisk bullets and checked separately.
+* Added a responsive Home shell and navigable Quiz/Results placeholders, using local React state and initial domain/feature folders. No quiz configuration, scoring, or real state collection was started.
+* Added an offline Vite data hook: validate ignored `data/`, refresh ignored `public/data/`, generate a status manifest, and let Vite include it in `dist/data/`. An absent source supports the empty shell; a partial/invalid source fails. Restart the dev server after changing source data.
+* Added one project-authored fictional record and geometric SVG under `scripts/fixtures/`, plus a safe installer that refuses any existing `data/`. Source records and assets resolved in development and production; generated copies are ignored (verified with `git check-ignore`). The sample remains installed for human review.
+* Added an initial manifest/type contract and shared validation hook. `npm run data:validate` requires 50 nonsample records; its rejection of the fictional sample was verified. Task 03 must extend this hook for authoritative state membership, property metadata, factual correctness, and provenance, and supply the real collection command.
+* Passed: `npm run lint`, `npm run format:check`, production builds with both absent and fixture data, and 12 validation assertions covering empty/partial data, sample loading, full-data rejection, duplicate IDs, missing fields/assets, unsafe paths, and invalid JSON. Verified the fixture installer's overwrite refusal. Dependency installation reported zero audit vulnerabilities.
+* Headless Chrome checks passed at 1280px and 390px: empty and sample states, all navigation views, keyboard activation and heading focus, no horizontal overflow or JavaScript errors. The sample SVG and caption loaded in both Vite dev and production preview. Inspected desktop and mobile screenshots.
+* Updated README, architecture, and script documentation; verified local links, Markdown bullets, and `git diff --check`. No later task is started. No real dataset or playable quiz exists yet.
+* The original workspace path was absent; the repository was found at `/Users/andrew.crites/projects/personal/geotester`. Changes there were applied with explicit filesystem approval.
+
+Revision and validation notes (2026-10-21):
+
+* README describes implemented and unfinished capabilities without numbered task references. AGENTS remains durable instructions; dated implementation notes are kept here. On inspection, the reported dated AGENTS section was already in this plan rather than AGENTS; verified neither README nor AGENTS contains numbered task references or dated implementation history.
+* Added `npm run typecheck` (`tsc --noEmit`) for app, scripts, and configuration; `npm run build` now only runs `vite build`. Routine agent validation uses typecheck, with production builds reserved for checking production output.
+* Converted all utility scripts to TypeScript, run CLI scripts through `tsx`, and removed the suppressed type error in Vite configuration. Tool configs are now `prettier.config.ts` and `eslint.config.ts`, with `jiti` supporting ESLint configuration loading. Removed `.prettierrc.json`, `.prettierignore`, and the JavaScript ESLint config. Formatting globs plus `.gitignore` preserve Markdown bullets and skip generated data.
+* Node.js minimum is now 22.18 to load Prettier's TypeScript configuration without experimental flags. Updated package lock and setup instructions; installation reported zero audit vulnerabilities.
+* Removed header navigation and its view switching logic/styles. Setup is the only current screen; quiz/results components remain unconnected placeholders. Future progression uses on-screen controls, without direct access to results from setup.
+* Passed revised `npm run typecheck`, `npm run lint`, and `npm run format:check`; production output built successfully with sample data and with absent data in an isolated temporary copy. The migrated TypeScript fixture installer installs in an empty directory and refuses overwrite; all 12 data validation assertions still pass.
+* Headless Chrome checks at 1280px and 390px passed: no top navigation or view shortcuts, sample SVG loaded, setup remains disabled, brand link works with keyboard, no horizontal overflow or runtime errors. Inspected the updated mobile screenshot. Markdown bullets, local document links, and whitespace checks passed.
+
+Commit-hook addition and validation (2026-10-21):
+
+* Added Lefthook as a development dependency and `lefthook.yml` with parallel pre-commit checks for Prettier (`format:check`), ESLint (`lint`), and TypeScript (`typecheck`). Checks use the full working tree and do not modify or stage files. No build runs on commit.
+* Added `prepare: lefthook install` so normal npm installs wire up Git hooks. Verified installation into `.git/hooks/pre-commit`; there was no existing custom hook or configured hooks path to replace.
+* Passed all three checks through `npx lefthook run pre-commit --force` (force runs checks even without staged files). Dependency installation reported zero audit vulnerabilities. Updated README and AGENTS with hook setup and manual invocation; checked documentation links, asterisk bullets, and whitespace.
+
+Human verification checklist:
+
+* Run `npm run dev` and open its local URL. Confirm Home shows “Sample data only”, the fictional record, and its green sample SVG. The setup button should be disabled.
+* Confirm the header has no Home/Quiz/Results navigation and no control lets you skip from setup to results. Quiz play remains unavailable.
+* At a narrow mobile width, confirm readable text, visible sample artwork, and no sideways scrolling.
+* Review [lefthook.yml](lefthook.yml) and run `npx lefthook run pre-commit --force`; expect successful Prettier, ESLint, and typecheck checks.
+* Review [README.md](README.md), especially commands and local-data behavior. Confirm the shell and tooling meet Task 02's scope before marking it Complete.
+
+Human verification completed (2026-10-21):
+
+* The user confirmed the revised application foundation and commit hooks are good, and explicitly requested stopping the dev servers and committing Task 02.
+* Stopped both development servers started for this task. Later tasks remain Not started.
+
 ## Task 03 — Collect and verify US state data and assets
 
 Status: Not started
@@ -123,7 +164,7 @@ Goal: Produce a complete, independently reviewable geography dataset. This goal 
 Deliverables:
 
 * Create reusable scripts to collect quiz records and property metadata into ignored `data/` and assets into `data/assets/`. Keep scripts, schemas, and provenance documentation version controlled; document setup and rerun commands.
-*  Collect all 50 state names, stable identifiers, postal abbreviations, and capitals. Exclude DC and territories for this initial scope.
+* Collect all 50 state names, stable identifiers, postal abbreviations, and capitals. Exclude DC and territories for this initial scope.
 * Collect accurate state outline and flag assets and store them locally, preferably as SVG where practical.
 * Verify current flags and factual data against authoritative sources at collection time.
 * Document source URLs, retrieval dates, license or public-domain status, required attribution, and any asset transformations in `docs/DATA_SOURCES.md`.

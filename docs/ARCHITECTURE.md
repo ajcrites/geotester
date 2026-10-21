@@ -2,29 +2,29 @@
 
 ## Implementation status
 
-This is the design baseline for later tasks, not an account of implemented code. Task 01 creates documentation, the scripts directory, and the repository ignore policy. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
+Task 02 implements React, Vite, TypeScript, formatting, linting, local data delivery, and a responsive shell with a homepage and no top-level view navigation. Setup, quiz play, and results remain placeholders; the design below describes later tasks. Task 01 supplies documentation and the repository ignore policy. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
 
 ## Scope and boundaries
 
-React with Vite is the intended application foundation, with TypeScript as the proposed language default. Task 02 establishes formatting and linting. Use local React state initially; keep domain operations independent of React so they can be checked without rendering the UI.
+React with Vite and TypeScript form the implemented application foundation. Prettier and ESLint provide formatting and linting. Use local React state initially; keep domain operations independent of React so they can be checked without rendering the UI.
 
 The first dataset contains the 50 US states. The application needs no backend, accounts, database, or runtime API. Future functionality can revisit that boundary through an explicit task.
 
 ## Planned modules
 
-| Location | Responsibility |
-| --- | --- |
-| `src/domain/` | Types, configuration validation, sampling, question generation, evaluation, scoring |
-| `data/` | Collected state records and property metadata; excluded from version control |
-| `data/assets/` | Local outlines and flags; excluded from version control |
-| `src/features/setup/` | Homepage configuration and length controls |
-| `src/features/quiz/` | Clues, answer controls, progress, submission, feedback |
-| `src/features/results/` | Score and, in Task 07, missed-answer review |
-| `src/components/` | UI shared across features when needed |
-| `scripts/` | Repeatable development utilities, including collection scripts |
-| `docs/` | Durable design and data-source documentation |
+| Location                | Responsibility                                                                      |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| `src/domain/`           | Types, configuration validation, sampling, question generation, evaluation, scoring |
+| `data/`                 | Collected state records and property metadata; excluded from version control        |
+| `data/assets/`          | Local outlines and flags; excluded from version control                             |
+| `src/features/setup/`   | Homepage configuration and length controls                                          |
+| `src/features/quiz/`    | Clues, answer controls, progress, submission, feedback                              |
+| `src/features/results/` | Score and, in Task 07, missed-answer review                                         |
+| `src/components/`       | UI shared across features when needed                                               |
+| `scripts/`              | Repeatable development utilities, including collection scripts                      |
+| `docs/`                 | Durable design and data-source documentation                                        |
 
-These paths are conventions to follow when creating code, not files that already exist.
+The domain and three feature folders now exist. Introduce shared components when reuse exists; collection and quiz domain behavior remain future work.
 
 ## Data model and property capabilities
 
@@ -34,12 +34,12 @@ Represent a property's stable ID, display label, text or image kind, supported m
 
 All properties support `omit` and `show`. Other capabilities are explicit per property:
 
-| Property ID | Value kind | Answer modes |
-| --- | --- | --- |
-| `name` | Text | Fill-in, multiple choice |
-| `capital` | Text | Fill-in, multiple choice |
-| `shape` | Image | Multiple choice |
-| `flag` | Image | Multiple choice |
+| Property ID | Value kind | Answer modes             |
+| ----------- | ---------- | ------------------------ |
+| `name`      | Text       | Fill-in, multiple choice |
+| `capital`   | Text       | Fill-in, multiple choice |
+| `shape`     | Image      | Multiple choice          |
+| `flag`      | Image      | Multiple choice          |
 
 Render configuration controls from supported modes. Domain validation must also reject unsupported modes so correctness does not depend on UI restrictions. Additional properties may support a different subset, including no answer modes.
 
@@ -82,7 +82,7 @@ Scoring and normalization rules are proposed defaults, not separately confirmed 
 
 The confirmed storage policy is to exclude `data/`, including `data/assets/`, from version control. Commit collection scripts, schemas, types, application logic, and provenance documentation so a fresh checkout can reconstruct the dataset. Property metadata stored with the dataset follows the same collection workflow; rendering and capability validation code remain tracked.
 
-Task 02 establishes local delivery: the development server either serves `data/` directly or uses an ignored copy, and the production build copies the records and assets into its output. Keep source data and served URLs distinct and ensure asset references resolve in both modes. The exact Vite mechanism is selected in Task 02. Generated copies such as `public/data/` and build output are ignored too.
+Task 02 establishes local delivery: the development server either serves `data/` directly or uses an ignored copy, and the production build copies the records and assets into its output. Keep source data and served URLs distinct and ensure asset references resolve in both modes. The implemented Vite startup/build plugin validates and copies source data into ignored `public/data/`, clears stale copies, and generates `status.json`. Vite serves this directory and includes it in `dist/data/`. Restart Vite after changing data. All operations are local and offline. See the README for commands and the fixture manifest contract. Generated copies such as `public/data/` and build output are ignored too.
 
 Before Task 03 supplies data, the Task 02 shell must serve and build successfully with a clear data-not-yet-collected state. Once quizzes require the dataset, missing or incomplete data must produce an actionable message pointing to the collection command. Builds intended to contain quizzes must validate and copy a complete dataset, without silently shipping empty or stale data. Collection remains an explicit setup step rather than an automatic network fetch during serve or build.
 
@@ -95,7 +95,7 @@ Before submission, visible labels and image alternative text must not reveal the
 ## Validation by task
 
 * Task 01: inspect documentation links, task consistency, and Markdown bullet conventions.
-* Task 02: establish and run formatting, lint, and production build checks; inspect the shell at desktop and mobile widths.
+* Task 02: establish and run formatting, lint, type checking, and production output checks; inspect the shell at desktop and mobile widths.
 * Task 03: verify record completeness and uniqueness, asset resolution and readability, and documented provenance.
 * Task 04: check mode restrictions, configuration validation, synchronized length controls, and keyboard interaction.
 * Task 05: test sampling without repetition, text normalization, scoring, and repeat-submission protection; complete the first playable quiz manually.
@@ -103,3 +103,11 @@ Before submission, visible labels and image alternative text must not reveal the
 * Task 07: verify results, keyboard navigation, focus, announcements, contrast, responsive layouts, and the documented application checks.
 
 Add concrete commands only after their tooling exists. Record actual results and limitations in the implementation plan's task handoff notes.
+
+## Foundation data contract
+
+`src/domain/data.ts` defines the initial state record and manifest types. A manifest has `schemaVersion: 1`, `sample`, and `states`. Shape and flag use local `assets/` references relative to the data directory. The fictional fixture establishes delivery without collecting real geography data. The CLI and Vite plugin share `scripts/validate-data.ts`; full validation requires 50 nonsample records and existing local assets. Task 03 extends this hook for state membership, property registry metadata, factual validation, and provenance before the quiz consumes data.
+
+Only absent `data/` means empty mode. Present but malformed or incomplete nonsample data fails serve/build rather than quietly falling back to the placeholder. Data changes require a server restart; production builds always refresh copies. No quiz configuration or scoring behavior is implemented yet.
+
+Users advance through setup, quiz, and results using controls appropriate to the active step. No top-level navigation exposes future steps. The foundation renders only setup; quiz/results components remain unconnected placeholders.

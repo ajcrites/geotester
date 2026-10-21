@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "sample": true,
+  "states": [
+    {
+      "id": "sample",
+      "name": "Sample State (fictional)",
+      "abbreviation": "XX",
+      "capital": "Sample City (fictional)",
+      "shape": "assets/sample.svg",
+      "flag": "assets/sample.svg"
+    }
+  ]
+}
