@@ -157,7 +157,7 @@ Human verification completed (2026-10-21):
 
 ## Task 03 — Collect and verify US state data and assets
 
-Status: Not started
+Status: Complete
 
 Goal: Produce a complete, independently reviewable geography dataset. This goal builds the tools to collect this data in addition to the actual collection of data.
 
@@ -182,6 +182,49 @@ Acceptance criteria:
 * Collected data, assets, and generated copies are ignored; collection code and provenance remain trackable.
 
 Dependencies: Task 01; coordinate types and paths with Task 02. Keep this as a distinct data task.
+
+Implementation and agent validation notes (2026-10-21):
+
+* Implemented reusable TypeScript collection, SVG cleanup, gallery generation and shared validation. Collected 50 real states with names, USPS-based stable IDs, FIPS codes, capitals, 50 outlines and 50 flags in ignored `data/`. Property capability metadata is serialized into the manifest from a tracked registry; complete-data JSON schemas are enforced with Ajv.
+* Selected Census 2025 1:500,000 cartographic KML for outlines, Census ANSI codes for identities, and the Minnesota Legislative Reference Library's archived official capital table. Corrected the source's `Montomgery` typo and OCR `5t. Paul`, recording the corrections and independent government references. The reference's publication date is 1975–76, not the archive URL's 2013; all 50 resulting capital values were reviewed during collection.
+* Selected Commons SVG flag files with per-file revision, creator and reuse metadata. Compared all 50 designs with the GPO federal flag reference and checked later/special designs against official state sources, including Minnesota, Utah, Mississippi, New York, Louisiana, Maine, Massachusetts, Illinois and Oregon. Georgia is disambiguated from the country; Oregon uses its obverse.
+* Kept exact source URLs, SHA-256 hashes, retrieval timestamps, licensing details and official-source checks in tracked `scripts/source-lock.json`. `data/provenance.json` records all 100 transformed asset hashes and transformations. Documented sources, terms and per-file flag credits in `docs/DATA_SOURCES.md`: 49 selected flag files are public domain; Mississippi is copyrighted free use. Census acknowledgement is included in the gallery and documented for future quiz credits. Raw downloads stay in ignored `.cache/collection/` and are not served or built.
+* Outlines retain every Census polygon and inner ring in a consistent viewBox using equal-area projection and uniform fitting. Alaska unwraps across the antimeridian; Hawaii includes a separately fitted Northwestern Hawaiian Islands inset below the main islands. Small islands can be subpixel at quiz size but remain in the SVG geometry.
+* Flag cleanup preserves painter order, original proportions and authentic lettering, while removing added titles/descriptions/metadata/editor attributes. Normalized invalid `opacity="NaN"` attributes in Indiana's upstream file to the default browsers already use. Intrinsic names/initials on official flags remain visible; removing them would make the flags inaccurate. This is an explicit limitation of the no-answer-label requirement for future quiz play. No visible labels are added to outlines; the filename policy was revised below. The named gallery is for review only.
+* Collection uses curl with caching, paced Wikimedia requests, batching for Commons metadata, retry/backoff and content hash verification. Ordinary collection reproduces the reviewed source snapshot. An explicit refresh can bypass cache and update the lock after validation, but requires renewed source/licensing/visual review. Serving and building remain offline.
+* Collection stages and validates all output before installation. A plain rerun refuses an existing `data/`; `--replace` preserves previous data in an ignored timestamped backup. Preserved the original fictional fixture and the pre-normalization dataset in backups. A normal cached regeneration with the reviewed source lock passed after the SVG fix.
+* Passed: `npm run data:validate`, all 18 `npm run test:data` cases with no skips, `npm run lint`, `npm run typecheck`, `npm run format:check`, and `npm run build`. Cases cover absent/sample/partial data, duplicate IDs, missing fields/assets, escaping paths/symlinks, forbidden SVG resources, painter order, source opacity normalization, islands/holes, reviewed facts/membership, unsupported image modes, reused images and modified bytes.
+* Headless Chrome checks passed in development and production: all 100 SVGs decode, every served asset matches its local bytes, homepage reports 50 states with setup disabled, gallery credits work with the keyboard, and 1280px/390px layouts have no horizontal overflow or runtime errors. No external image/network dependencies were requested. Inspected all 50 image pairs and the mobile gallery. Raster comparison at 320×240 found 49 cleaned flags pixel-identical to their originals; Louisiana differed by one channel value in four channels out of 307,200, within a two-value/eight-channel antialiasing tolerance.
+* Verified generated data, assets, served/build copies, raw cache and backups are ignored; collection code, schema, source lock and provenance documentation remain trackable. Markdown links, asterisk bullets and whitespace checks passed. Quiz configuration/play/scoring are not implemented; later tasks remain Not started. No commit was requested or created.
+* Verification limit: the separate attempt to rerun collection from an empty download cache in an isolated checkout was declined at execution approval and was not run. Initial online collection and subsequent cached regeneration passed; do not represent the empty-cache fresh-checkout scenario as tested.
+
+Asset filename revision (2026-10-21):
+
+* The user requested readable `state-name-shape.svg` and `state-name-flag.svg` filenames and explicitly said not to rerun collection. Updated the collector's future output, shared naming helper, JSON schema, runtime validation and source documentation. Existing shape/flag subdirectories are retained; examples are `assets/shapes/new-york-shape.svg` and `assets/flags/new-york-flag.svg`.
+* Renamed the 100 existing local SVGs and updated dataset/provenance paths and gallery references without running collection or downloading anything. Confirmed every image's SHA-256 remained unchanged. FIPS metadata and stable record IDs are unchanged. Filenames now identify their states at the user's request; later quiz UI should use neutral descriptions and avoid displaying filenames as clues.
+* Passed all 18 data tests, complete-data validation, formatting, lint, type checking and the production build. Independently checked all 100 filenames, manifest/gallery references and byte-identical images in source `data/`, served `public/data/` and production `dist/data/`; each directory contains 50 shapes and 50 flags with no remaining numeric SVG names. No fresh collection check was run or requested again.
+* Human check for this revision: open `/data/gallery.html`, confirm all images still load, and inspect the New York image links to confirm their readable `new-york-shape.svg` / `new-york-flag.svg` filenames. The broader checklist below remains available for Task 03 verification.
+
+Version-controlled gallery revision (2026-10-21):
+
+* Moved the gallery's HTML, styles and rendering code into `scripts/templates/gallery.html` and added that file to Git's index. The collector's existing installation hook and `npm run data:gallery` now copy this file unchanged into `data/gallery.html`. The page reads adjacent `dataset.json` and `provenance.json` in the browser; collected records and assets remain ignored instead of being embedded in tracked HTML.
+* Preserved the layout, local images, credit controls, Census acknowledgement and Hawaii inset caption. Added loading/missing-data messaging for local JSON requests. Updated README, script instructions, architecture and provenance docs with the source location and offline recopy workflow. No collection or downloads were rerun.
+* Passed formatting, lint, type checking and the production build. Confirmed the gallery copies in `data/`, `public/data/` and `dist/data/` are byte-identical to the Git-tracked source and all preview/build copies remain ignored.
+* Headless Chrome checks passed against dev and production: 50 cards and 100 decoded images, identical served asset bytes, keyboard-operated credits, homepage status, no external requests or runtime errors, and no overflow at 1280px/390px. Inspected updated desktop/mobile screenshots. A simulated missing dataset produces a visible, actionable message with no partial cards.
+* Human check for this revision: review [the tracked gallery source](scripts/templates/gallery.html), refresh `/data/gallery.html`, and confirm the same 50-state gallery and source credits appear. Future edits go in the tracked HTML; run `npm run data:gallery` and restart Vite to refresh the local preview.
+
+Human verification checklist:
+
+* Open `/data/gallery.html` on the URL printed by `npm run dev`. Review all 50 outline/flag pairs at desktop and mobile widths, especially Alaska's islands, Hawaii's inset, and the Minnesota/Utah/Mississippi flags. All 100 images should load without clipping or distortion.
+* Review [DATA_SOURCES.md](docs/DATA_SOURCES.md), including source choices, per-file terms/credits, capital corrections, island transforms and the decision to retain authentic lettering within flags.
+* Visit the homepage. Confirm it reports 50 state records while quiz setup remains disabled; this task adds data, not quiz play.
+* Review [property capabilities](src/domain/properties.ts) and the generated local `data/dataset.json`: name/capital support fill-in and multiple choice; outline/flag support multiple choice but not fill-in. Confirm this matches the intended initial scope before marking Complete.
+
+Human verification completed (2026-10-21):
+
+* The user confirmed satisfaction with Task 03, including the readable asset filenames and version-controlled gallery, and explicitly requested marking the task complete and committing the changes.
+* The user previously confirmed that collection did not need to be rerun; verification used the existing assets, checksums, validation, build copies and browser checks. The documented empty-cache collection scenario remains untested.
+* Task 03 is complete. Later tasks remain Not started.
 
 ## Task 04 — Configurable homepage
 

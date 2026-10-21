@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>State asset review · Geotester</title>
+    <style>
+      body {
+        font: 16px system-ui;
+        background: #eef3ef;
+        color: #18342d;
+        margin: 0;
+        padding: 24px;
+      }
+      header {
+        max-width: 1000px;
+        margin: auto auto 24px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+        gap: 18px;
+        max-width: 1400px;
+        margin: auto;
+      }
+      article {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        min-width: 0;
+      }
+      h2 {
+        margin: 0;
+        font-size: 21px;
+      }
+      small {
+        color: #547268;
+      }
+      p {
+        line-height: 1.5;
+      }
+      a {
+        color: #175d8c;
+        overflow-wrap: anywhere;
+      }
+      .images {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      figure {
+        margin: 0;
+        min-width: 0;
+      }
+      img {
+        width: 100%;
+        height: 140px;
+        object-fit: contain;
+        background: #f8faf9;
+        box-sizing: border-box;
+        border: 1px solid #d3dfd8;
+        padding: 8px;
+      }
+      figcaption {
+        font-size: 12px;
+        margin-top: 6px;
+      }
+      details {
+        margin-top: 16px;
+        font-size: 13px;
+      }
+      summary {
+        cursor: pointer;
+      }
+      a:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid #bd6613;
+        outline-offset: 3px;
+      }
+      @media (max-width: 450px) {
+        body {
+          padding: 12px;
+        }
+        article {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1 id="gallery-title">State asset review</h1>
+      <p>
+        Review gallery, not a quiz. Check silhouettes, islands, flag details,
+        and proportions at quiz size. Names here are review labels only.
+        Authentic lettering within flags is retained. Hawaii's northwestern
+        islands use a separate inset below its main islands.
+      </p>
+      <p>
+        Sources and reuse terms: <a href="provenance.json">Full provenance</a>.
+        Outlines derived from U.S. Census Bureau, 2025 Cartographic Boundary
+        Files, 1:500,000. Source:
+        <a id="boundary-source">2025 Census cartographic boundaries</a>
+        (public domain). Flag credits are included on each card. No network is
+        needed to display the images.
+      </p>
+      <p id="gallery-status" role="status">Loading local data…</p>
+      <noscript
+        >Enable JavaScript to load the local dataset and asset
+        credits.</noscript
+      >
+    </header>
+    <main aria-label="State outlines and flags"></main>
+    <script type="module">
+      const escape = (value) =>
+        String(value).replace(
+          /[&<>"']/g,
+          (character) =>
+            ({
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;',
+            })[character],
+        );
+
+      async function readLocalJson(filename) {
+        const response = await fetch(filename);
+        if (!response.ok)
+          throw new Error(
+            `Unable to load ${filename} (HTTP ${response.status}).`,
+          );
+        return response.json();
+      }
+
+      try {
+        const [dataset, provenance] = await Promise.all([
+          readLocalJson('dataset.json'),
+          readLocalJson('provenance.json'),
+        ]);
+        const cards = dataset.states.map((state) => {
+          const source = provenance.sourceLock.flags.find(
+            (flag) => flag.abbreviation === state.abbreviation,
+          );
+          if (!source)
+            throw new Error(`Missing flag credits for ${state.name}.`);
+          return `<article><h2>${escape(state.name)} <small>${escape(state.abbreviation)}</small></h2><p>${escape(state.capital)} · FIPS ${escape(state.fips)}</p><div class="images"><figure><img src="${escape(state.shape)}" alt="${escape(state.name)} outline"><figcaption>Outline${state.abbreviation === 'HI' ? ' · Northwestern islands inset below' : ''}</figcaption></figure><figure><img src="${escape(state.flag)}" alt="${escape(state.name)} flag"><figcaption>Flag · obverse</figcaption></figure></div><details><summary>Source and credits</summary><p><a href="${escape(source.page)}">Flag source</a> · ${escape(source.license)}</p><p>${escape(source.author)}. ${escape(source.credit)}</p>${source.licenseUrl ? `<a href="${escape(source.licenseUrl)}">License terms</a>` : ''}</details></article>`;
+        });
+        document.querySelector('main').innerHTML = cards.join('\n');
+        document.querySelector('#gallery-title').textContent =
+          `${dataset.states.length} states · ${dataset.states.length * 2} local assets`;
+        document.querySelector('#boundary-source').href =
+          provenance.sourceLock.sources.boundaries.url;
+        document.querySelector('#gallery-status').textContent = '';
+      } catch (error) {
+        document.querySelector('#gallery-status').textContent =
+          `${error.message} Copy the gallery with npm run data:gallery after collecting data, then open /data/gallery.html through npm run dev.`;
+      }
+    </script>
+  </body>
+</html>

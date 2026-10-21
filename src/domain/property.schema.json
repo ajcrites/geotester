@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://geotester.local/schemas/property.schema.json",
+  "title": "Geotester property metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "label", "kind", "field", "modes"],
+  "properties": {
+    "id": { "enum": ["name", "capital", "shape", "flag"] },
+    "label": { "type": "string", "minLength": 1 },
+    "kind": { "enum": ["text", "image"] },
+    "field": { "enum": ["name", "capital", "shape", "flag"] },
+    "modes": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": { "enum": ["omit", "show", "fill-in", "multiple-choice"] },
+      "allOf": [
+        { "contains": { "const": "omit" } },
+        { "contains": { "const": "show" } }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "image" } } },
+      "then": {
+        "properties": {
+          "modes": {
+            "type": "array",
+            "items": { "enum": ["omit", "show", "multiple-choice"] }
+          },
+          "id": { "enum": ["shape", "flag"] },
+          "field": { "enum": ["shape", "flag"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "text" } } },
+      "then": {
+        "properties": {
+          "id": { "enum": ["name", "capital"] },
+          "field": { "enum": ["name", "capital"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "id": { "const": "name" } } },
+      "then": { "properties": { "field": { "const": "name" } } }
+    },
+    {
+      "if": { "properties": { "id": { "const": "capital" } } },
+      "then": { "properties": { "field": { "const": "capital" } } }
+    },
+    {
+      "if": { "properties": { "id": { "const": "shape" } } },
+      "then": { "properties": { "field": { "const": "shape" } } }
+    },
+    {
+      "if": { "properties": { "id": { "const": "flag" } } },
+      "then": { "properties": { "field": { "const": "flag" } } }
+    }
+  ]
+}

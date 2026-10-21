@@ -1,5 +1,8 @@
 # Collected quiz data, property metadata, and assets
 /data/
+/.cache/
+/.data-staging-*/
+/.data-backup-*/
 
 # Generated data copies (when development tooling uses public/)
 /public/data/

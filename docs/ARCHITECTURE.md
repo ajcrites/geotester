@@ -2,7 +2,7 @@
 
 ## Implementation status
 
-Task 02 implements React, Vite, TypeScript, formatting, linting, local data delivery, and a responsive shell with a homepage and no top-level view navigation. Setup, quiz play, and results remain placeholders; the design below describes later tasks. Task 01 supplies documentation and the repository ignore policy. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
+The application implements React, Vite, TypeScript, formatting, linting, local data delivery, and a responsive homepage. Collection scripts now produce the full 50-state dataset, outline and flag SVGs, property metadata, provenance and a review gallery. Setup, quiz play, and results remain placeholders; their design below describes later work. Repository documentation establishes scope and the ignore policy. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
 
 ## Scope and boundaries
 
@@ -24,11 +24,11 @@ The first dataset contains the 50 US states. The application needs no backend, a
 | `scripts/`              | Repeatable development utilities, including collection scripts                      |
 | `docs/`                 | Durable design and data-source documentation                                        |
 
-The domain and three feature folders now exist. Introduce shared components when reuse exists; collection and quiz domain behavior remain future work.
+The domain and three feature folders now exist. Introduce shared components when reuse exists; data collection and validation are implemented; quiz domain behavior remains future work.
 
 ## Data model and property capabilities
 
-Use a stable state ID independently of its display name. Each state record should contain its name, postal abbreviation, capital, and local outline and flag references. Task 03 defines the concrete types and verifies exactly 50 complete, unique records.
+Use a stable state ID independently of its display name. Each state record should contain its name, postal abbreviation, capital, and local outline and flag references. The implemented collector supplies `us-<postal-code>` identities, two-digit FIPS codes and exactly 50 verified records. Collected values stay ignored; a tracked source lock pins the factual digest and source hashes.
 
 Represent a property's stable ID, display label, text or image kind, supported modes, and means of retrieving its value in a property registry. Separate domain data from UI rendering. Use text/image kind to select an answer renderer; avoid state-name-specific branches throughout the UI.
 
@@ -84,11 +84,11 @@ The confirmed storage policy is to exclude `data/`, including `data/assets/`, fr
 
 Task 02 establishes local delivery: the development server either serves `data/` directly or uses an ignored copy, and the production build copies the records and assets into its output. Keep source data and served URLs distinct and ensure asset references resolve in both modes. The implemented Vite startup/build plugin validates and copies source data into ignored `public/data/`, clears stale copies, and generates `status.json`. Vite serves this directory and includes it in `dist/data/`. Restart Vite after changing data. All operations are local and offline. See the README for commands and the fixture manifest contract. Generated copies such as `public/data/` and build output are ignored too.
 
-Before Task 03 supplies data, the Task 02 shell must serve and build successfully with a clear data-not-yet-collected state. Once quizzes require the dataset, missing or incomplete data must produce an actionable message pointing to the collection command. Builds intended to contain quizzes must validate and copy a complete dataset, without silently shipping empty or stale data. Collection remains an explicit setup step rather than an automatic network fetch during serve or build.
+Before collection, the shell serves and builds with a clear data-not-yet-collected state. Once quizzes require the dataset, missing or incomplete data must produce an actionable message pointing to the collection command. Builds intended to contain quizzes must validate and copy a complete dataset, without silently shipping empty or stale data. Collection remains an explicit setup step rather than an automatic network fetch during serve or build.
 
-Task 03 collects factual data, outlines, and flags through reusable scripts. Prefer SVG where practical, preserve aspect ratio, and inspect every asset at quiz size. Include relevant islands in outlines. Verify current flags and capitals against authoritative sources at collection time.
+Reusable TypeScript collection scripts now join Census names/codes/geometries with an official capital table and collect Commons flag SVGs. Outlines preserve all Census polygons and inner rings using a state-centered equal-area projection and uniform fit. Alaska crosses the antimeridian without wrapping across the world; Hawaii uses a separate Northwestern Hawaiian Islands inset. Flag cleanup preserves painter order and authentic design lettering. The version-controlled `scripts/templates/gallery.html` is copied unchanged into the validated collection staging directory before installation, or into existing `data/` by `npm run data:gallery`. It reads the adjacent local dataset and provenance JSON files in the browser to display all 100 images and their credits; collected facts are not embedded in tracked HTML.
 
-Store sources, retrieval dates, redistribution terms, attribution, and transformations in `docs/DATA_SOURCES.md` when collection begins. Asset paths should resolve locally in development and the production build. Do not add runtime network requests for quiz data.
+Sources, retrieval dates, redistribution terms, attribution, corrections and transformations are recorded in [DATA_SOURCES.md](DATA_SOURCES.md), with exact hashes/revisions in `scripts/source-lock.json` and per-output provenance in ignored `data/provenance.json`. Raw downloads stay in ignored `.cache/collection/` and are not served. The collector stages and validates before replacing data and backs up the previous directory when `--replace` is specified. Asset paths should resolve locally in development and the production build. Do not add runtime network requests for quiz data.
 
 Before submission, visible labels and image alternative text must not reveal the expected answer. Provide neutral, useful descriptions such as the option number and visual characteristics; reveal identifying labels in feedback when appropriate. Local assets and bundled data are inspectable, so this is an educational quiz, not a secure assessment system.
 
@@ -106,7 +106,7 @@ Add concrete commands only after their tooling exists. Record actual results and
 
 ## Foundation data contract
 
-`src/domain/data.ts` defines the initial state record and manifest types. A manifest has `schemaVersion: 1`, `sample`, and `states`. Shape and flag use local `assets/` references relative to the data directory. The fictional fixture establishes delivery without collecting real geography data. The CLI and Vite plugin share `scripts/validate-data.ts`; full validation requires 50 nonsample records and existing local assets. Task 03 extends this hook for state membership, property registry metadata, factual validation, and provenance before the quiz consumes data.
+`src/domain/data.ts` defines the initial state record and manifest types. A manifest has `schemaVersion: 1`, `sample`, and `states`. Shape and flag use local `assets/` references relative to the data directory. The fictional fixture establishes delivery without collecting real geography data. The CLI and Vite plugin share `scripts/validate-data.ts`; full validation requires 50 nonsample records and existing local assets. The shared validator now enforces complete-data JSON schemas with Ajv, exact state membership, a reviewed factual digest, property capability metadata, SVG isolation and per-asset hashes/provenance. Complete manifests contain `properties`; real records also require `fips`. Fixtures keep the small sample contract. The property registry is tracked in `src/domain/properties.ts`, serialized by collection into the ignored manifest, and contains no executable rendering logic. The collector uses development-only dependencies for ZIP/XML/PDF reading and geographic projection; these are not included in the browser bundle.
 
 Only absent `data/` means empty mode. Present but malformed or incomplete nonsample data fails serve/build rather than quietly falling back to the placeholder. Data changes require a server restart; production builds always refresh copies. No quiz configuration or scoring behavior is implemented yet.
 
