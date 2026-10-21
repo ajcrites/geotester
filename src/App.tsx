@@ -10,7 +10,7 @@ import { Setup } from './features/setup/Setup';
 
 export function App() {
   const [status, setStatus] = useState<DataStatus | null>(null);
-  const [sample, setSample] = useState<Dataset | null>(null);
+  const [dataset, setDataset] = useState<Dataset | null>(null);
   const [configuration, setConfiguration] = useState(defaultConfiguration);
   const [activeConfiguration, setActiveConfiguration] =
     useState<QuizConfiguration | null>(null);
@@ -29,16 +29,16 @@ export function App() {
           );
         const data: DataStatus = await response.json();
         setStatus(data);
-        if (data.status === 'sample') {
+        if (data.status === 'sample' || data.status === 'ready') {
           const fixture = await fetch(
             `${import.meta.env.BASE_URL}data/dataset.json`,
             { signal: controller.signal },
           );
           if (!fixture.ok)
             throw new Error(
-              'Sample data is missing. Restart npm run dev to refresh local files.',
+              'Local dataset is missing. Restart npm run dev to refresh local files.',
             );
-          setSample(await fixture.json());
+          setDataset(await fixture.json());
         }
       } catch (failure) {
         if (!controller.signal.aborted)
@@ -65,18 +65,20 @@ export function App() {
         {activeConfiguration ? (
           <Quiz
             configuration={activeConfiguration}
+            states={dataset!.states}
             onBack={() => setActiveConfiguration(null)}
           />
         ) : (
           <Setup
             status={status}
-            sample={sample}
+            sample={status?.status === 'sample' ? dataset : null}
             error={error}
             configuration={configuration}
             onChange={setConfiguration}
             onStart={() => {
               if (
                 status?.status === 'ready' &&
+                dataset &&
                 !error &&
                 validateConfiguration(configuration, status.count).length === 0
               )

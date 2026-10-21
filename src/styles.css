@@ -247,3 +247,35 @@ dd {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.quiz-outline img {
+  width: 100%;
+  height: 240px;
+  object-fit: contain;
+}
+.answer-input {
+  display: block;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  padding: 12px;
+  margin: 8px 0 20px;
+  border: 1px solid #71856f;
+  border-radius: 6px;
+}
+.quiz-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+}
+.quiz-actions button {
+  min-height: 44px;
+}
+
+.feedback-correct {
+  color: #23723b;
+}
+.feedback-incorrect {
+  color: #b42318;
+}

@@ -20,7 +20,7 @@
     "data:validate": "tsx scripts/validate-data.ts --complete",
     "typecheck": "tsc --noEmit",
     "prepare": "lefthook install",
-    "test:domain": "tsx --test scripts/configuration.test.ts"
+    "test:domain": "tsx --test scripts/configuration.test.ts scripts/quiz.test.ts"
   },
   "dependencies": {
     "react": "^19.2.0",

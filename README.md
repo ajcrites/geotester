@@ -4,8 +4,8 @@ A geography quiz application, starting with the 50 US states. The React foundati
 
 ## Current capabilities
 
-* Implemented: React/Vite/TypeScript setup, responsive configurable homepage, capability-based property settings, quiz length controls, configuration validation and a quiz handoff preview, 50 verified state records, local outline/flag SVGs, a review gallery, reproducible collection scripts, schema/factual/asset validation, formatting, linting, and type checking.
-* Not implemented: question progression, scoring, and results. Begin quiz opens a preview of the selected settings; question play remains future work.
+* Implemented: React/Vite/TypeScript setup, responsive configurable homepage, capability-based property settings, quiz length controls, configuration validation and a playable outline-to-name quiz, 50 verified state records, local outline/flag SVGs, a review gallery, reproducible collection scripts, schema/factual/asset validation, formatting, linting, and type checking.
+* The default configuration now supports random questions without repeats, text answers, feedback, explicit advancement, a final score, and fresh restarts. Other property combinations still open a settings preview; full combination support and missed-answer review remain future work.
 
 ## Development
 
@@ -22,7 +22,7 @@ Open the local URL printed by Vite. No dataset is needed for the foundation: Hom
 npm run format        # Apply Prettier formatting
 npm run format:check  # Check formatting
 npm run lint          # ESLint, including React hooks
-npm run test:domain   # Check quiz configuration rules
+npm run test:domain   # Check configuration, sampling, answers, and scoring
 npm run typecheck     # Check application, scripts, and tool configuration types
 npm run build         # Build the production application into dist/
 npm run preview       # Serve the production build locally

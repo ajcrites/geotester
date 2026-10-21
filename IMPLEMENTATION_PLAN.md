@@ -273,7 +273,7 @@ Human verification completed (2026-10-21):
 
 ## Task 05 — First playable quiz: name from shape
 
-Status: Not started
+Status: Complete
 
 Goal: Complete a small end-to-end path before implementing all mode combinations.
 
@@ -293,6 +293,30 @@ Acceptance criteria:
 * The user can complete a quiz and start another without stale answers or results.
 
 Dependencies: Task 04.
+
+Implementation and agent validation notes (2026-10-21):
+
+* Added pure sampling, answer normalization, guarded submission, and derived scoring. Questions are sampled once per session without replacing states or mutating the source. Blank answers count as incorrect; percentages round to whole numbers. No aliases or fuzzy matching were added.
+* Default settings now load the local dataset and support progress, neutral outline descriptions, text submission, correct-answer feedback, explicit Next/See score actions, final score, fresh random restarts, and returning to preserved settings. Heading tabIndex behavior remains removed as requested during Task 04.
+* Other valid configurations retain an explicitly labeled settings preview until Task 06; no combination support was started. Reload persistence and missed-answer review remain deferred.
+* Passed six domain tests covering configuration, 10/50-state uniqueness, full coverage, input immutability, invalid lengths/IDs, whitespace and case, incorrect/blank answers, scoring, duplicate/out-of-order submission, fresh sessions and supported-flow boundaries. Tests required an approved rerun because tsx IPC was blocked by the sandbox.
+* Passed Prettier, ESLint and TypeScript through `npx lefthook run pre-commit --force`, and `npm run build` with the real local dataset. Fixed a test tuple type reported by the first typecheck before rerunning successfully.
+* Browser verification completed ten questions with ten distinct outlines, alternating normalized correct answers and wrong answers; score was 5/10 (50%). Enter submitted answers, feedback appeared, Next advanced, and restart returned to question one with a blank draft. Return to setup preserved length 10 and modes. Inspected quiz screenshots at 390px and 1280px; mobile had no horizontal overflow and the outline loaded.
+* Updated README and architecture for implemented behavior. Task 06 remains Not started.
+
+Human verification checklist:
+
+* Run `npm run dev`, keep default modes, choose 10 states, and begin. Confirm each outline is readable and progress advances only after submitting and choosing Next.
+* Try a correct name with mixed case and extra spaces, an incorrect answer, and a blank answer. Confirm feedback reveals the state and each question scores once.
+* Finish the quiz and confirm the count and percentage match your answers. Start a new quiz and confirm question one has no stale answer or feedback.
+* Return to setup and confirm your modes and length remain selected. Check keyboard controls and the layout at desktop and mobile widths.
+
+
+Human verification completed (2026-10-21):
+
+* The user confirmed the quiz looks good and authorized committing after coloring Correct green and Incorrect red. Applied distinct dark green/red feedback-label styles while preserving the explicit text and neutral correct-answer explanation.
+* Formatting, lint and typecheck passed through the forced pre-commit hook after the styling change. Prior desktop/mobile and end-to-end checks are recorded above; the final color-only revision was checked in source without another browser run.
+* Task 05 is Complete under the user's conditional approval. Task 06 remains Not started.
 
 ## Task 06 — All supported property combinations
 

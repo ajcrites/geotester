@@ -2,7 +2,7 @@
 
 ## Implementation status
 
-The application implements React, Vite, TypeScript, formatting, linting, local data delivery, and a responsive homepage. Collection scripts now produce the full 50-state dataset, outline and flag SVGs, property metadata, provenance and a review gallery. Setup now renders registry-driven mode selectors, a synchronized 1–50 length slider and shortcuts, and validation feedback. Valid configurations open a preview with a copied configuration; quiz play and results remain future work. Repository documentation establishes scope and the ignore policy. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
+The application implements React, Vite, TypeScript, formatting, linting, local data delivery, and a responsive homepage. Collection scripts now produce the full 50-state dataset, outline and flag SVGs, property metadata, provenance and a review gallery. Setup now renders registry-driven mode selectors, a synchronized 1–50 length slider and shortcuts, and validation feedback. The default configuration opens a playable outline-to-name quiz with sampled questions, feedback and a final score. Other configurations retain a settings preview until combination support is implemented. Repository documentation establishes scope and the ignore policy. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
 
 ## Scope and boundaries
 
@@ -24,7 +24,7 @@ The first dataset contains the 50 US states. The application needs no backend, a
 | `scripts/`              | Repeatable development utilities, including collection scripts                      |
 | `docs/`                 | Durable design and data-source documentation                                        |
 
-The domain and three feature folders now exist. Introduce shared components when reuse exists; data collection and validation are implemented; configuration validation is implemented; question generation and scoring remain future work.
+The domain and three feature folders now exist. Introduce shared components when reuse exists; data collection and validation are implemented; configuration validation is implemented; default-flow question generation and scoring are implemented.
 
 ## Data model and property capabilities
 
@@ -62,7 +62,7 @@ Shuffle state IDs and select the configured number without replacement. Each sel
 
 For each multiple-choice field, use the correct property's value and three distinct distractors from the full dataset, then shuffle the choices. Ensure distinct answer values as well as IDs if future properties contain duplicate values. The initial state names, capitals, outlines, and flags must provide enough distinct options. Keep question order and choices stable across renders and answer edits.
 
-Task 05 first implements the default shape-to-name flow. Task 06 extends generation and rendering to all supported combinations.
+The default shape-to-name flow samples once per session with Fisher–Yates, keeps drafts separate from submitted answers, and derives scores from those answers. Submission accepts only the next unanswered index, preventing duplicate scoring. Blank answers count as incorrect; percentages round to the nearest whole number. No aliases are introduced. Task 06 extends generation and rendering to all supported combinations.
 
 ## Quiz state and submission
 
@@ -108,6 +108,6 @@ Add concrete commands only after their tooling exists. Record actual results and
 
 `src/domain/data.ts` defines the initial state record and manifest types. A manifest has `schemaVersion: 1`, `sample`, and `states`. Shape and flag use local `assets/` references relative to the data directory. The fictional fixture establishes delivery without collecting real geography data. The CLI and Vite plugin share `scripts/validate-data.ts`; full validation requires 50 nonsample records and existing local assets. The shared validator now enforces complete-data JSON schemas with Ajv, exact state membership, a reviewed factual digest, property capability metadata, SVG isolation and per-asset hashes/provenance. Complete manifests contain `properties`; real records also require `fips`. Fixtures keep the small sample contract. The property registry is tracked in `src/domain/properties.ts`, serialized by collection into the ignored manifest, and contains no executable rendering logic. The collector uses development-only dependencies for ZIP/XML/PDF reading and geographic projection; these are not included in the browser bundle.
 
-Only absent `data/` means empty mode. Present but malformed or incomplete nonsample data fails serve/build rather than quietly falling back to the placeholder. Data changes require a server restart; production builds always refresh copies. Quiz configuration is implemented; scoring remains future work.
+Only absent `data/` means empty mode. Present but malformed or incomplete nonsample data fails serve/build rather than quietly falling back to the placeholder. Data changes require a server restart; production builds always refresh copies. Quiz configuration and default-flow scoring are implemented.
 
-Users advance through setup, quiz, and results using controls appropriate to the active step. No top-level navigation exposes future steps. Setup can open a quiz handoff preview and return to preserved settings. Results remain unconnected.
+Users advance through setup, quiz, and results using controls appropriate to the active step. No top-level navigation exposes future steps. Setup opens the default quiz or a preview of other settings. Results allow a fresh quiz or returning to preserved setup settings.
