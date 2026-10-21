@@ -186,3 +186,64 @@ footer {
     gap: 4px;
   }
 }
+
+select {
+  font: inherit;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #71856f;
+  border-radius: 6px;
+  background: #fffef8;
+  color: inherit;
+  margin-top: 12px;
+}
+.properties {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.length-control {
+  max-width: 560px;
+}
+.length-control label {
+  font-weight: 700;
+}
+.length-control input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  accent-color: #235846;
+}
+.shortcuts {
+  display: flex;
+  gap: 8px;
+}
+.shortcuts button {
+  flex: 1;
+  min-height: 44px;
+  border: 1px solid #71856f;
+  border-radius: 6px;
+  color: inherit;
+  background: #fffef8;
+}
+.shortcuts button[aria-pressed='true'],
+.primary:not(:disabled) {
+  background: #235846;
+  color: white;
+}
+.primary:disabled {
+  opacity: 0.7;
+}
+dl > div {
+  display: flex;
+  gap: 16px;
+}
+dt {
+  font-weight: 700;
+}
+dd {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .properties {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

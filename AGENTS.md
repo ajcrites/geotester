@@ -54,7 +54,8 @@ Follow these folder conventions; introduce new folders when needed.
 ## Commit messages
 
 * Use semantic commit messages: `type: description` or `type(scope): description` when a scope adds useful context.
+* For work tied to a numbered implementation-plan task, use the zero-padded scope `task-XX`, for example `feat(task-04): add configurable quiz setup`. Use the appropriate type with that scope for fixes, documentation, and other task-related changes, such as `fix(task-04): validate quiz length`. Work without a numbered task may use another useful scope or omit it.
 * Choose a type that describes the change: `feat` for features, `fix` for bug fixes, `docs` for documentation, `refactor` for restructuring without behavior changes, `test` for tests, and `chore`, `build`, or `ci` for maintenance and tooling.
-* Use a concise, imperative description of the change, for example `feat: add local data validation`. Reference task numbers in the commit body when useful.
+* Use a concise, imperative description of the change, for example `feat(task-04): add configurable quiz setup`. Add task details in the commit body when useful.
 * Mark breaking changes with `!` after the type or scope and explain them in a `BREAKING CHANGE:` footer.
 * Use asterisks for bulleted lists in commit bodies, as in other Markdown.

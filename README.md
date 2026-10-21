@@ -4,8 +4,8 @@ A geography quiz application, starting with the 50 US states. The React foundati
 
 ## Current capabilities
 
-* Implemented: React/Vite/TypeScript setup, responsive homepage, 50 verified state records, local outline/flag SVGs, a review gallery, reproducible collection scripts, schema/factual/asset validation, formatting, linting, and type checking.
-* Not implemented: quiz configuration, question progression, scoring, and results. Quiz and results components are placeholders; they are not reachable from the homepage.
+* Implemented: React/Vite/TypeScript setup, responsive configurable homepage, capability-based property settings, quiz length controls, configuration validation and a quiz handoff preview, 50 verified state records, local outline/flag SVGs, a review gallery, reproducible collection scripts, schema/factual/asset validation, formatting, linting, and type checking.
+* Not implemented: question progression, scoring, and results. Begin quiz opens a preview of the selected settings; question play remains future work.
 
 ## Development
 
@@ -16,12 +16,13 @@ npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite. No dataset is needed for the foundation: Home explains that data has not been collected. The setup button is disabled until quiz functionality is implemented. Users will progress through setup, questions, and results using on-screen controls; there is no top-level view navigation.
+Open the local URL printed by Vite. No dataset is needed for the foundation: Home explains that data has not been collected. The Begin quiz button requires complete data, at least one shown clue, and at least one property to answer. Users will progress through setup, questions, and results using on-screen controls; there is no top-level view navigation.
 
 ```sh
 npm run format        # Apply Prettier formatting
 npm run format:check  # Check formatting
 npm run lint          # ESLint, including React hooks
+npm run test:domain   # Check quiz configuration rules
 npm run typecheck     # Check application, scripts, and tool configuration types
 npm run build         # Build the production application into dist/
 npm run preview       # Serve the production build locally
@@ -46,7 +47,7 @@ npm run data:gallery
 npm run dev
 ```
 
-Collection requires `curl` and network access; see [sources and terms](docs/DATA_SOURCES.md). Open `/data/gallery.html` on Vite's local URL to inspect all 100 images and their credits. Home reports 50 state records; quiz setup remains disabled. Use `npm run data:collect -- --replace` if a sample/dataset already exists; the previous directory is backed up after the replacement validates. Plain collection refuses overwrite. Downloads are cached in ignored `.cache/collection/`. `npm run test:data` runs data and SVG regression tests; full-data checks skip explicitly if no real data is installed.
+Collection requires `curl` and network access; see [sources and terms](docs/DATA_SOURCES.md). Open `/data/gallery.html` on Vite's local URL to inspect all 100 images and their credits. Home reports 50 state records and enables valid quiz configurations. Use `npm run data:collect -- --replace` if a sample/dataset already exists; the previous directory is backed up after the replacement validates. Plain collection refuses overwrite. Downloads are cached in ignored `.cache/collection/`. `npm run test:data` runs data and SVG regression tests; full-data checks skip explicitly if no real data is installed.
 
 A fresh checkout can still serve and build with an explicit empty-data placeholder before collection.
 
@@ -79,4 +80,4 @@ Manifests use `schemaVersion: 1`, `sample`, and `states`. Real data additionally
 
 ## Commit convention
 
-Use semantic commit messages in the form `type: description` or `type(scope): description`, for example `feat: add local data validation`. Common types include `feat`, `fix`, `docs`, `refactor`, `test`, and `chore`. See [repository instructions](AGENTS.md#commit-messages) for the full convention.
+Use semantic commit messages in the form `type: description` or `type(scope): description`, using a zero-padded `task-XX` scope for numbered implementation-plan work, for example `feat(task-04): add configurable quiz setup`. Use the appropriate type with the task scope (`fix(task-04)`, `docs(task-04)`, etc.); other work may use another useful scope or omit it. Common types include `feat`, `fix`, `docs`, `refactor`, `test`, and `chore`. See [repository instructions](AGENTS.md#commit-messages) for the full convention.

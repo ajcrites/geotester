@@ -19,7 +19,8 @@
     "test:data": "tsx --test scripts/data.test.ts",
     "data:validate": "tsx scripts/validate-data.ts --complete",
     "typecheck": "tsc --noEmit",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "test:domain": "tsx --test scripts/configuration.test.ts"
   },
   "dependencies": {
     "react": "^19.2.0",

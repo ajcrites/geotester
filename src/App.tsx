@@ -1,3 +1,9 @@
+import {
+  defaultConfiguration,
+  validateConfiguration,
+  type QuizConfiguration,
+} from './domain/configuration';
+import { Quiz } from './features/quiz/Quiz';
 import { useEffect, useState } from 'react';
 import type { DataStatus, Dataset } from './domain/data';
 import { Setup } from './features/setup/Setup';
@@ -5,6 +11,9 @@ import { Setup } from './features/setup/Setup';
 export function App() {
   const [status, setStatus] = useState<DataStatus | null>(null);
   const [sample, setSample] = useState<Dataset | null>(null);
+  const [configuration, setConfiguration] = useState(defaultConfiguration);
+  const [activeConfiguration, setActiveConfiguration] =
+    useState<QuizConfiguration | null>(null);
   const [error, setError] = useState('');
   useEffect(() => {
     const controller = new AbortController();
@@ -53,7 +62,31 @@ export function App() {
       <main id="main">
         <p className="eyebrow">A little curiosity. A whole country.</p>
         <h1>Find your way to knowing more.</h1>
-        <Setup status={status} sample={sample} error={error} />
+        {activeConfiguration ? (
+          <Quiz
+            configuration={activeConfiguration}
+            onBack={() => setActiveConfiguration(null)}
+          />
+        ) : (
+          <Setup
+            status={status}
+            sample={sample}
+            error={error}
+            configuration={configuration}
+            onChange={setConfiguration}
+            onStart={() => {
+              if (
+                status?.status === 'ready' &&
+                !error &&
+                validateConfiguration(configuration, status.count).length === 0
+              )
+                setActiveConfiguration({
+                  length: configuration.length,
+                  modes: { ...configuration.modes },
+                });
+            }}
+          />
+        )}
       </main>
       <footer>
         50 states. Countless discoveries.<span>Built for curious minds.</span>

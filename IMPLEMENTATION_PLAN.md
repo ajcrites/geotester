@@ -228,7 +228,7 @@ Human verification completed (2026-10-21):
 
 ## Task 04 — Configurable homepage
 
-Status: Not started
+Status: Complete
 
 Goal: Let users configure a valid quiz using the property registry.
 
@@ -247,6 +247,29 @@ Acceptance criteria:
 * Valid configurations can begin a quiz; invalid configurations explain what needs changing.
 
 Dependencies: Tasks 02 and 03.
+
+
+Implementation and agent validation notes (2026-10-21):
+
+* Added registry-driven native mode selectors, a 1–50 slider and synchronized 10/20/30/40/50 shortcuts. Outline and flag exclude fill-in. Added pure configuration defaults/validation and `npm run test:domain`.
+* Kept the proposed defaults: fill-in name, show outline, omit capital/flag; require a clue and an answer property. Invalid configurations explain the required changes beside the disabled Begin quiz control. Empty/sample/error/loading data cannot start.
+* Valid settings open a handoff preview with an independent copy of the configuration; Edit settings preserves choices. This is the Task 04 start boundary: question generation, play, scoring and results remain Task 05/06 work. Initial heading focus behavior was removed after human review (see below).
+* Passed `npm run test:domain` (2 tests covering all lengths, invalid bounds, dataset size, capabilities, missing modes, clue/answer requirements and an extended registry). The initial sandbox run could not create tsx's IPC socket; the approved rerun passed.
+* Passed formatting, lint and typecheck, including `npx lefthook run pre-commit --force`. Browser checks verified supported modes, a 10-state shortcut, native slider Right key changing 10 to 11 and clearing shortcut selection, invalid clue feedback and disabled start, a valid 11-state handoff with heading focus, and preserved settings on return. Inspected layouts at 390px and 1280px; desktop DOM check found no horizontal overflow. No production build was needed for these setup-only changes.
+* Updated README and architecture to distinguish implemented setup from future quiz play. Task 05 remains Not started.
+
+Human verification checklist:
+
+* Run `npm run dev`. Confirm defaults are fill-in name, shown outline, omitted capital/flag, and 50 states. Outline and flag must never offer fill-in.
+* Select length shortcuts and use the slider with arrow keys. Confirm displayed length and selected shortcut stay synchronized from 1 to 50.
+* Omit the outline to remove all clues; confirm an explanation appears and Begin quiz is disabled. Restore a clue, then remove all answer properties and confirm the corresponding explanation.
+* Restore a valid configuration and select Begin quiz. Confirm the preview matches your settings; Edit settings should preserve them. Question play is intentionally deferred.
+* At desktop and narrow mobile widths, confirm readable controls, visible keyboard focus, and no sideways scrolling.
+
+Human verification completed (2026-10-21):
+
+* The user confirmed the configuration functions correctly and removed heading `tabIndex` attributes because they caused issues. Preserved that change and removed the now-ineffective heading refs and focus effects.
+* Formatting, lint, typecheck, and whitespace checks passed after cleanup. Task 05 remains Not started.
 
 ## Task 05 — First playable quiz: name from shape
 
