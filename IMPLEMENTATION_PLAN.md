@@ -7,7 +7,8 @@ Build a React web application for configurable geography quizzes, starting with 
 ## Agreed requirements
 
 * Use React with Vite; use TypeScript as the proposed implementation default.
-* Keep data hardcoded and assets local. No backend, accounts, database, or external runtime API is needed. (This may change in the future as we introduce more functionality).
+* Store collected quiz records and property metadata in untracked `data/` and assets in untracked `data/assets/`. Keep collection scripts, types, schemas, application logic, and provenance documentation version controlled. Serve or copy local data during development and copy it into production build output.
+* Keep data local and static. No backend, accounts, database, or external runtime API is needed. (This may change in the future as we introduce more functionality).
 * The homepage lets users configure and begin a quiz.
 * Initial properties are state name, capital, shape (map outline), and flag.
 * Every property supports omit and show (also described as keep). Other modes depend on the property.
@@ -55,6 +56,7 @@ Deliverables:
 * Create or update `README.md` with the project purpose and links to this plan and other documentation. Add runnable commands after the app exists.
 * Create `docs/ARCHITECTURE.md` covering the data model, property capabilities, configuration, question generation, scoring, and local assets.
 * Create a scripts/ directory for reusable utility scripts.
+* Create `.gitignore` for `data/`, generated data copies, dependencies, build output, and local environment files.
 * Record decisions and implementation assumptions without presenting proposals as user-approved requirements.
 
 Acceptance criteria:
@@ -65,13 +67,28 @@ Acceptance criteria:
 
 Dependencies: None.
 
-Completion notes (2026-10-21):
+Implementation and agent validation notes (2026-10-21):
 
 * Created root `AGENTS.md`, `README.md`, `docs/ARCHITECTURE.md`, and `scripts/README.md`; the latter establishes the scripts directory without adding utilities ahead of Task 03.
 * Documented scope, planned folder conventions, capability-based property handling, configuration, generation, submission, scoring, local assets, and task-specific validation expectations.
-* Preserved proposed defaults as assumptions and clearly identified the application as not yet scaffolded. Task 02 is next; later tasks remain Not started.
+* Preserved proposed defaults as assumptions and clearly identified the application as not yet scaffolded. Task 02 is next after human verification; later tasks remain Not started.
 * Validation passed: all five Markdown documents exist, local Markdown links resolve, bulleted lists use asterisks, the scripts directory exists, and no application package was introduced. Manually reviewed documentation against Task 01's deliverables and acceptance criteria.
 * No application tests or build checks apply yet. The workspace is not currently a Git repository; no commits were created.
+
+Storage-policy revision notes (2026-10-21):
+
+* User reviewed and edited the documents, confirming that collected data and assets must remain outside version control. Aligned the plan and documentation with `data/` and `data/assets/`.
+* Added `.gitignore` as Task 01 repository scaffolding. Task 02 owns development delivery and build copying; Task 03 owns reproducible collection into the ignored directories.
+* Human verification completed on 2026-10-21: the user explicitly confirmed Task 01 is complete and requested a commit.
+
+Human verification checklist:
+
+* Read and optionally edit [AGENTS.md](AGENTS.md). Confirm the scope, folder conventions, validation expectations, asterisk bullets, and human verification workflow match how you want Codex to work.
+* Read and optionally edit [README.md](README.md). Confirm it accurately explains the project, says the app has not been scaffolded, and links to the project documentation.
+* Review [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Confirm the intended design is understandable and proposed defaults remain identified as assumptions.
+* Open [scripts/README.md](scripts/README.md). Confirm the scripts directory exists and its instructions support reusable collection utilities in Task 03.
+* Review [.gitignore](.gitignore): confirm `data/`, generated data copies, dependencies, and build output are excluded while scripts, schemas, and documentation remain trackable.
+* Verified: the user confirmed the revised Task 01 is complete on 2026-10-21.
 
 ## Task 02 — React application foundation
 
@@ -84,13 +101,16 @@ Deliverables:
 * Scaffold React, Vite, and TypeScript, preserving existing repository files.
 * Configure formatting (prettier), linting and document install, development, lint, and production build commands.
 * Create a responsive application shell with a homepage and placeholders for quiz and results views.
-* Establish lightweight domain, data, feature, and asset folders; avoid a state management framework unless a concrete need arises.
+* Establish lightweight domain and feature folders, with collected data in ignored `data/` and images in `data/assets/`; avoid a state management framework unless a concrete need arises.
+* Configure development to serve `data/` directly or copy it to an ignored served location, and configure builds to copy data and assets into output. Do not fetch data automatically on serve or build.
+* Before Task 03, support an empty dataset with a clear placeholder so the shell can serve and build. Establish actionable missing-data errors and a validation hook for the complete dataset that Task 03 will supply. Document the chosen mechanism and extend `.gitignore` if it introduces other generated paths.
 
 Acceptance criteria:
 
 * Development server runs and the production build and lint checks pass.
 * The shell is usable on desktop and mobile widths.
 * README instructions match the actual package scripts.
+* Include a reusable, version-controlled fixture under `scripts/fixtures/` containing one clearly labeled sample record and a simple SVG, plus a script that copies it into ignored `data/` without overwriting existing data. Verify that the sample record and image resolve in dev and are copied into build output; generated copies remain ignored. The empty-data shell also serves and builds before Task 03.
 
 Dependencies: Task 01.
 
@@ -102,13 +122,13 @@ Goal: Produce a complete, independently reviewable geography dataset. This goal 
 
 Deliverables:
 
-*  Create a reusable script or scripts to fetch the asset data that will be used for quizzes.
+* Create reusable scripts to collect quiz records and property metadata into ignored `data/` and assets into `data/assets/`. Keep scripts, schemas, and provenance documentation version controlled; document setup and rerun commands.
 *  Collect all 50 state names, stable identifiers, postal abbreviations, and capitals. Exclude DC and territories for this initial scope.
 * Collect accurate state outline and flag assets and store them locally, preferably as SVG where practical.
 * Verify current flags and factual data against authoritative sources at collection time.
 * Document source URLs, retrieval dates, license or public-domain status, required attribution, and any asset transformations in `docs/DATA_SOURCES.md`.
 * Ensure outlines have consistent visual bounds, preserve aspect ratio, include relevant islands, and remain recognizable at quiz size. Use individual outlines without location context initially.
-* Define typed state records and a property registry containing stable property IDs, labels, supported modes, and text or image rendering information.
+* Define version-controlled types and schemas for state records and property metadata. Generate the dataset and property registry metadata in `data/`, containing stable property IDs, labels, supported modes, and text or image rendering information; keep rendering logic in application code.
 
 Acceptance criteria:
 
@@ -117,6 +137,8 @@ Acceptance criteria:
 * An asset gallery or equivalent inspection verifies all outlines and flags render legibly.
 * Basic validation catches missing fields, duplicate IDs, and missing asset references.
 * Sources and redistribution terms are recorded for every asset collection.
+* A fresh checkout can regenerate the complete dataset using documented scripts. Validate all records and asset references before serving quizzes or building the full quiz application; verify the complete dataset resolves in dev and is copied into the production output.
+* Collected data, assets, and generated copies are ignored; collection code and provenance remain trackable.
 
 Dependencies: Task 01; coordinate types and paths with Task 02. Keep this as a distinct data task.
 
@@ -227,6 +249,10 @@ For each task:
 * Read applicable `AGENTS.md` instructions and this plan before editing.
 * Confirm prerequisite tasks are complete and inspect existing work.
 * Set the task status to In progress, implement its scoped deliverables, and run relevant checks.
-* Set the status to Complete only after its acceptance criteria pass.
+* After implementation and agent checks pass, set the status to Awaiting human verification.
+* Record a short human verification checklist below the task and output it in the final response. Give concrete document review items or UI steps, with relevant links and expected outcomes.
+* Wait for explicit user verification before marking Complete. Record the confirmation and date; do not infer verification from silence.
+* If the user requests changes, return the task to In progress, address and validate the changes, then provide an updated checklist.
+* Do not start dependent tasks while verification is pending unless the user explicitly directs otherwise.
 * Record changed behavior, validation results, unresolved issues, and any decisions affecting later tasks below the task.
 * Keep task boundaries reviewable. Do not introduce deferred features without a request.

@@ -1,0 +1,20 @@
+# Collected quiz data, property metadata, and assets
+/data/
+
+# Generated data copies (when development tooling uses public/)
+/public/data/
+
+# Dependencies, build output, and local tool caches
+/node_modules/
+/dist/
+/.vite/
+/coverage/
+*.tsbuildinfo
+
+# Local environment overrides; keep examples trackable
+.env
+.env.*
+!.env.example
+
+# OS metadata
+.DS_Store

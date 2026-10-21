@@ -2,7 +2,7 @@
 
 ## Implementation status
 
-This is the design baseline for later tasks, not an account of implemented code. Task 01 creates documentation and the scripts directory only. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
+This is the design baseline for later tasks, not an account of implemented code. Task 01 creates documentation, the scripts directory, and the repository ignore policy. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
 
 ## Scope and boundaries
 
@@ -15,12 +15,12 @@ The first dataset contains the 50 US states. The application needs no backend, a
 | Location | Responsibility |
 | --- | --- |
 | `src/domain/` | Types, configuration validation, sampling, question generation, evaluation, scoring |
-| `src/data/` | State records and property registry |
+| `data/` | Collected state records and property metadata; excluded from version control |
+| `data/assets/` | Local outlines and flags; excluded from version control |
 | `src/features/setup/` | Homepage configuration and length controls |
 | `src/features/quiz/` | Clues, answer controls, progress, submission, feedback |
 | `src/features/results/` | Score and, in Task 07, missed-answer review |
 | `src/components/` | UI shared across features when needed |
-| `public/assets/states/` | Local outline and flag files |
 | `scripts/` | Repeatable development utilities, including collection scripts |
 | `docs/` | Durable design and data-source documentation |
 
@@ -79,6 +79,12 @@ Normalize text by trimming, collapsing repeated whitespace, and ignoring case. A
 Scoring and normalization rules are proposed defaults, not separately confirmed user requirements.
 
 ## Local assets and provenance
+
+The confirmed storage policy is to exclude `data/`, including `data/assets/`, from version control. Commit collection scripts, schemas, types, application logic, and provenance documentation so a fresh checkout can reconstruct the dataset. Property metadata stored with the dataset follows the same collection workflow; rendering and capability validation code remain tracked.
+
+Task 02 establishes local delivery: the development server either serves `data/` directly or uses an ignored copy, and the production build copies the records and assets into its output. Keep source data and served URLs distinct and ensure asset references resolve in both modes. The exact Vite mechanism is selected in Task 02. Generated copies such as `public/data/` and build output are ignored too.
+
+Before Task 03 supplies data, the Task 02 shell must serve and build successfully with a clear data-not-yet-collected state. Once quizzes require the dataset, missing or incomplete data must produce an actionable message pointing to the collection command. Builds intended to contain quizzes must validate and copy a complete dataset, without silently shipping empty or stale data. Collection remains an explicit setup step rather than an automatic network fetch during serve or build.
 
 Task 03 collects factual data, outlines, and flags through reusable scripts. Prefer SVG where practical, preserve aspect ratio, and inspect every asset at quiz size. Include relevant islands in outlines. Verify current flags and capitals against authoritative sources at collection time.
 
