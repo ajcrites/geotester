@@ -5,7 +5,13 @@ A geography quiz application, starting with the 50 US states. The React foundati
 ## Current capabilities
 
 * Implemented: React/Vite/TypeScript setup, responsive configurable homepage, capability-based property settings, quiz length controls, configuration validation and playable quizzes for every supported property combination, 50 verified state records, local outline/flag SVGs, a review gallery, reproducible collection scripts, schema/factual/asset validation, formatting, linting, and type checking.
-* Quizzes support text and image clues, name/capital fill-in, four-option text and image choices, multiple answer fields, field-level feedback, partial credit, explicit advancement, a final score, and fresh restarts. Questions and choices stay stable while answering. Missed-answer review remains future work.
+* Quizzes support text and image clues, name/capital fill-in, four-option text and image choices, multiple answer fields, field-level feedback, partial credit, explicit advancement, a final score, and fresh restarts. Questions and choices stay stable while answering. Results review missed properties with submitted and correct text or images; unanswered fields are labeled “No answer”. Restart samples a fresh quiz with the same configuration, and returning to setup retains all settings.
+
+## Using the quiz
+
+Use Tab and Shift+Tab to move between controls, arrow keys to change radio choices and the length slider, Space to select an option, and Enter to submit or advance. Focus moves to each new question, the advancement button after submission, and the final score. Setup does not automatically focus a heading. A polite status message summarizes each submission; individual feedback also labels correctness in words.
+
+Settings and quiz progress stay in memory and reset on reload. Restart reshuffles without guaranteeing a different order on every run. Scoring awards one point per answer property, so a state can earn partial credit. Text answers ignore case and repeated whitespace, but require exact spelling. Image alternatives are neutral before submission; authentic flag lettering can reveal state identities. Screen-reader speech and real-device touch behavior still need human verification.
 
 ## Development
 
@@ -16,7 +22,7 @@ npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite. No dataset is needed for the foundation: Home explains that data has not been collected. The Begin quiz button requires complete data, at least one shown clue, and at least one property to answer. Users will progress through setup, questions, and results using on-screen controls; there is no top-level view navigation.
+Open the local URL printed by Vite. No dataset is needed for the foundation: Home explains that data has not been collected. The Begin quiz button requires complete data, at least one shown clue, and at least one property to answer. Users progress through setup, questions, and results using on-screen controls; there is no top-level view navigation.
 
 ```sh
 npm run format        # Apply Prettier formatting

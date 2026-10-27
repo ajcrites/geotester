@@ -2,7 +2,7 @@
 
 ## Implementation status
 
-The application implements React, Vite, TypeScript, formatting, linting, local data delivery, and a responsive homepage. Collection scripts now produce the full 50-state dataset, outline and flag SVGs, property metadata, provenance and a review gallery. Setup now renders registry-driven mode selectors, a synchronized 1–50 length slider and shortcuts, and validation feedback. Every supported configuration opens a playable quiz with sampled questions, stable choices, field-level feedback and a final score. Repository documentation establishes scope and the ignore policy. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
+The application implements React, Vite, TypeScript, formatting, linting, local data delivery, and a responsive homepage. Collection scripts now produce the full 50-state dataset, outline and flag SVGs, property metadata, provenance and a review gallery. Setup now renders registry-driven mode selectors, a synchronized 1–50 length slider and shortcuts, and validation feedback. Every supported configuration opens a playable quiz with sampled questions, stable choices, field-level feedback and a final score and missed-answer review. Repository documentation establishes scope and the ignore policy. Requirements and task status live in the [implementation plan](../IMPLEMENTATION_PLAN.md).
 
 ## Scope and boundaries
 
@@ -19,7 +19,7 @@ The first dataset contains the 50 US states. The application needs no backend, a
 | `data/assets/`          | Local outlines and flags; excluded from version control                             |
 | `src/features/setup/`   | Homepage configuration and length controls                                          |
 | `src/features/quiz/`    | Clues, answer controls, progress, submission, feedback                              |
-| `src/features/results/` | Score and, in Task 07, missed-answer review                                         |
+| `src/features/results/` | Score and missed-answer review                                         |
 | `src/components/`       | UI shared across features when needed                                               |
 | `scripts/`              | Repeatable development utilities, including collection scripts                      |
 | `docs/`                 | Durable design and data-source documentation                                        |
@@ -68,15 +68,17 @@ The quiz flow samples once per session with Fisher–Yates, keeps drafts separat
 
 Model setup, active quiz, and results as explicit views. An active quiz holds its frozen configuration, generated questions, current index, draft answers, and submitted results.
 
-Submission evaluates all fields for the current state once, records the outcome, and reveals feedback. Subsequent submissions must not award points again. Next advances to a fresh draft or shows results after the final question. Starting again creates fresh questions and clears prior answers. Returning to setup preserves configuration in Task 07. Reload persistence is deferred.
+Submission evaluates all fields for the current state once, records the outcome, and reveals feedback. Subsequent submissions must not award points again. Next advances to a fresh draft or shows results after the final question. Starting again creates fresh questions and clears prior answers. Returning to setup preserves configuration. Reload persistence is deferred.
 
 ## Answer evaluation and scoring
 
 The plan proposes one point per correct answer property, allowing partial credit within a state. Shown and omitted properties are excluded from the denominator. Total possible points equal the number of states multiplied by the configured answer-property count. Derive aggregate scores from recorded results to avoid duplicate accumulation.
 
-Normalize text by trimming, collapsing repeated whitespace, and ignoring case. Accepted aliases should be explicit and documented with data; fuzzy matching is deferred. Evaluate choice answers by stable option identity. Retain submitted and correct answers for feedback and the eventual missed-answer review.
+Normalize text by trimming, collapsing repeated whitespace, and ignoring case. Accepted aliases should be explicit and documented with data; fuzzy matching is deferred. Evaluate choice answers by stable option identity. Retain submitted and correct answers for feedback and missed-answer review.
 
 Scoring and normalization rules are proposed defaults, not separately confirmed user requirements.
+
+Results derive missed properties from the frozen questions and submitted outcomes, group them by state, and display submitted and correct values, including local images. Correct properties are excluded from review; a perfect score shows an explicit empty-review message. Setup settings remain owned by App while each restart creates a new session. Question and results headings receive focus on entry; setup leaves focus to the browser. Quiz forms and text inputs request autocomplete off, with neutral numbered response identifiers to reduce personal-information autofill heuristics; submission focuses the next action and updates one polite, atomic status region. Native inputs retain keyboard behavior and visible focus indicators. Review columns stack on small screens and images preserve aspect ratio.
 
 ## Local assets and provenance
 

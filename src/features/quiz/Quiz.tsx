@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { QuizConfiguration } from '../../domain/configuration';
 import type { StateRecord } from '../../domain/data';
 import {
   createSession,
-  quizScore,
   submitAnswer,
   type DraftAnswers,
   type QuestionField,
@@ -40,6 +39,13 @@ export function Quiz({
   );
   const [index, setIndex] = useState(0);
   const [draft, setDraft] = useState<DraftAnswers>({});
+  const heading = useRef<HTMLHeadingElement>(null);
+  const next = useRef<HTMLButtonElement>(null);
+  const submitted = !!session.answers[index];
+  useEffect(() => {
+    if (submitted) next.current?.focus();
+    else heading.current?.focus();
+  }, [index, submitted, session.questions]);
   const restart = () => {
     setSession(createSession(states, configuration));
     setIndex(0);
@@ -47,7 +53,12 @@ export function Quiz({
   };
   if (index === session.questions.length)
     return (
-      <Results score={quizScore(session)} onRestart={restart} onBack={onBack} />
+      <Results
+        session={session}
+        states={states}
+        onRestart={restart}
+        onBack={onBack}
+      />
     );
   const question = session.questions[index];
   const result = session.answers[index];
@@ -62,7 +73,9 @@ export function Quiz({
         max={session.questions.length}
         aria-label="Completed states"
       />
-      <h2 id="question-title">Identify the missing properties</h2>
+      <h2 id="question-title" ref={heading} tabIndex={-1}>
+        State {index + 1}: Identify the missing properties
+      </h2>
       <div className="quiz-clues">
         {question.fields
           .filter((field) => field.mode === 'show')
@@ -77,7 +90,14 @@ export function Quiz({
             </figure>
           ))}
       </div>
+      <p role="status" aria-atomic="true">
+        {result
+          ? `Answers submitted. ${result.fields.filter((field) => field.correct).length} of ${result.fields.length} correct. Review the feedback, then ${index + 1 === session.questions.length ? 'see your score' : 'continue to the next state'}.`
+          : ''}
+      </p>
       <form
+        name="geography-quiz"
+        autoComplete="off"
         key={index}
         onSubmit={(event) => {
           event.preventDefault();
@@ -95,12 +115,15 @@ export function Quiz({
                 <>
                   <label
                     className="answer-label"
-                    htmlFor={`answer-${field.property.id}`}
+                    htmlFor={`quiz-response-${fieldIndex}`}
                   >
                     Your answer
                   </label>
                   <input
-                    id={`answer-${field.property.id}`}
+                    id={`quiz-response-${fieldIndex}`}
+                    name={`quiz-response-${fieldIndex}`}
+                    type="text"
+                    inputMode="text"
                     className="answer-input"
                     value={draft[field.property.id] ?? ''}
                     onChange={(event) =>
@@ -112,7 +135,6 @@ export function Quiz({
                     readOnly={!!result}
                     autoComplete="off"
                     spellCheck={false}
-                    autoFocus={fieldIndex === 0}
                   />
                 </>
               ) : (
@@ -125,7 +147,6 @@ export function Quiz({
                         value={option.id}
                         checked={draft[field.property.id] === option.id}
                         disabled={!!result}
-                        autoFocus={fieldIndex === 0 && optionIndex === 0}
                         onChange={() =>
                           setDraft({ ...draft, [field.property.id]: option.id })
                         }
@@ -140,7 +161,7 @@ export function Quiz({
                   ))}
                 </div>
               )}
-              <div role="status">
+              <div>
                 {feedback && (
                   <div className="field-feedback">
                     <strong
@@ -179,7 +200,7 @@ export function Quiz({
         {result && (
           <button
             className="primary"
-            autoFocus
+            ref={next}
             onClick={() => {
               setIndex(index + 1);
               setDraft({});

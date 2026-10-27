@@ -364,7 +364,7 @@ Human verification completed (2026-10-27):
 
 ## Task 07 — Results, accessibility, and release checks
 
-Status: Not started
+Status: Complete
 
 Goal: Make the full quiz comfortable to use and ready for review.
 
@@ -384,6 +384,43 @@ Acceptance criteria:
 * Validation results and material limitations are documented in the implementation handoff.
 
 Dependencies: Task 06.
+
+Implementation and agent validation notes (2026-10-27):
+
+* Added missed-answer review grouped by state and property, showing submitted and correct text/images and explicit “No answer” labels. Correct properties are excluded; perfect scores show an empty-review message. Image alternatives identify the submitted/correct state after completion.
+* Kept configuration owned by App and session generation on restart; verified a fresh sampled question, cleared drafts/results, and retained modes/length on return to setup. Reshuffling can coincidentally repeat an order.
+* Replaced automatic input focus with explicit heading focus for setup, each question, and results. Submission focuses Next/See score and updates one polite atomic summary region; individual feedback still uses explicit correctness words. Review images preserve aspect ratio and columns stack at narrow widths.
+* Passed all 7 domain and 18 data tests with no skips, including exhaustive property combinations, partial credit, duplicate-submission protection and full local dataset validation. The initial sandbox run blocked tsx's IPC socket; the approved rerun passed.
+* Passed format:check, lint and typecheck through `npx lefthook run pre-commit --force`, plus the production build with real local data. Verified Markdown asterisk bullets, local document links and `git diff --check`. No new dependencies.
+* Browser validation at 1280px desktop and 390px mobile: mixed capital fill-in/outline choice produced 1/2 (50%); a blank image answer appeared as “No answer”; two incorrect image selections displayed both submitted and correct images; a two-state capital quiz produced 2/2 (100%) and the perfect-score message. Verified Tab, Space, Enter, slider keyboard changes, next-question focus, fresh drafts, results/setup focus, preserved settings, loaded images and no horizontal overflow. Inspected screenshots; browser reported no warning/error logs.
+* Calculated contrast for main/muted text, primary buttons, correct/incorrect feedback and focus indicators against their backgrounds: text ratios 5.87:1 or greater, focus 5.02:1 and control borders 3.93:1. Correctness also uses words. This is targeted validation, not a comprehensive accessibility audit.
+* Updated README usage/limitations and architecture to reflect completed behavior. Reload persistence, spelling aliases/fuzzy matching, and retrying only missed answers remain deferred. Authentic flag lettering remains visible. Screen-reader speech and physical-device touch behavior were not tested.
+
+Revision and validation notes (2026-10-27):
+
+* User reported the quiz otherwise works as expected, and requested removing setup heading highlighting and addressing Chrome's payment-autofill warning on state-name responses. These requested changes were subsequently verified by the user below.
+* Removed setup's programmatic heading focus and tabindex, including on return. Question/results focus remains intact. This supersedes the initial setup-focus behavior above.
+* Kept the appropriate plain text answer control, explicitly declaring text type/input mode, requesting autocomplete off on the quiz form as well as its inputs, and replacing `answer-name` identifiers with neutral numbered `quiz-response-*` names/IDs. Label associations and Enter submission remain intact. No fake address, password, or hidden decoy fields were added.
+* Passed formatting, lint and typecheck through the forced Lefthook checks. Browser inspection confirmed initial focus stays on BODY, setup heading has no tabindex, both form/input request autocomplete off, and a state-name response submits with Enter and focuses See score. Chrome's profile-dependent warning was not reproducible in the in-app browser; user verification in the affected Chrome profile is required. Autocomplete requests cannot guarantee suppression of browser-specific heuristics.
+* Updated README and architecture for the revised setup focus and autofill behavior.
+
+Updated human verification checklist:
+
+* Reload setup: “A quiz your way” should have no automatic focus outline. Check returning to setup as well.
+* In the affected Chrome profile, begin a state-name fill-in quiz, focus “Your answer”, and type an answer. Confirm the payment-autofill warning no longer appears and Enter still submits normally.
+* Confirm these revisions; the user's prior review found the remaining quiz behavior working as expected.
+
+Original human verification checklist (remaining accessibility/device checks are optional follow-up):
+
+* Run `npm run dev`. Choose a short quiz with multiple answer properties; submit one correct, one incorrect, and one blank answer where possible. Confirm points/percentage award partial credit and the review includes only missed properties, submitted values or “No answer”, and correct text/images.
+* Complete a quiz using Tab/Shift+Tab, radio arrow keys or Space, and Enter. Confirm visible focus moves to each question, Next/See score, and results; if using a screen reader, confirm submission summaries are announced clearly.
+* At a mobile width, check text/image choices and missed-answer review remain readable without sideways scrolling. Try on a physical touch device if available.
+* Start a new quiz, then return to setup. Confirm answers/score reset while length and modes remain selected. Complete a perfect quiz and confirm the perfect-score review message.
+* Review [README.md](README.md) usage/limitations and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Confirm the finished behavior is ready before marking Task 07 Complete.
+
+Human verification completed (2026-10-27):
+
+* The user confirmed that the changes and fixes work as expected and explicitly authorized committing Task 07. This includes the setup heading focus removal and the quiz input autofill fix.
 
 ## Deferred enhancements
 
