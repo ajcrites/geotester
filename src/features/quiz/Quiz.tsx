@@ -1,15 +1,30 @@
 import { useState } from 'react';
 import type { QuizConfiguration } from '../../domain/configuration';
 import type { StateRecord } from '../../domain/data';
-import { properties } from '../../domain/properties';
 import {
+  createSession,
   quizScore,
-  sampleStates,
   submitAnswer,
-  supportsShapeQuiz,
-  type QuizSession,
+  type DraftAnswers,
+  type QuestionField,
 } from '../../domain/quiz';
 import { Results } from '../results/Results';
+
+function Value({
+  field,
+  value,
+  description,
+}: {
+  field: QuestionField;
+  value: string;
+  description: string;
+}) {
+  return field.property.kind === 'image' ? (
+    <img src={`${import.meta.env.BASE_URL}data/${value}`} alt={description} />
+  ) : (
+    <span>{value}</span>
+  );
+}
 
 export function Quiz({
   configuration,
@@ -20,52 +35,15 @@ export function Quiz({
   states: StateRecord[];
   onBack: () => void;
 }) {
-  if (!supportsShapeQuiz(configuration))
-    return (
-      <section className="panel placeholder">
-        <h2>Your {configuration.length}-state quiz settings</h2>
-        <p>
-          This configuration is saved as a preview. Play currently supports
-          fill-in name, shown outline, and omitted capital and flag. Other
-          combinations are coming next.
-        </p>
-        <dl>
-          {properties.map(({ id, label }) => (
-            <div key={id}>
-              <dt>{label}</dt>
-              <dd>{configuration.modes[id].replaceAll('-', ' ')}</dd>
-            </div>
-          ))}
-        </dl>
-        <button className="primary" onClick={onBack}>
-          Edit settings
-        </button>
-      </section>
-    );
-  return (
-    <ShapeQuiz states={states} length={configuration.length} onBack={onBack} />
+  const [session, setSession] = useState(() =>
+    createSession(states, configuration),
   );
-}
-
-function ShapeQuiz({
-  states,
-  length,
-  onBack,
-}: {
-  states: StateRecord[];
-  length: number;
-  onBack: () => void;
-}) {
-  const [session, setSession] = useState<QuizSession>(() => ({
-    questions: sampleStates(states, length),
-    answers: [],
-  }));
   const [index, setIndex] = useState(0);
-  const [draft, setDraft] = useState('');
+  const [draft, setDraft] = useState<DraftAnswers>({});
   const restart = () => {
-    setSession({ questions: sampleStates(states, length), answers: [] });
+    setSession(createSession(states, configuration));
     setIndex(0);
-    setDraft('');
+    setDraft({});
   };
   if (index === session.questions.length)
     return (
@@ -73,19 +51,32 @@ function ShapeQuiz({
     );
   const question = session.questions[index];
   const result = session.answers[index];
+  const answerFields = question.fields.filter((field) => field.mode !== 'show');
   return (
     <section className="panel placeholder" aria-labelledby="question-title">
       <p className="eyebrow">
-        State {index + 1} of {length}
+        State {index + 1} of {session.questions.length}
       </p>
-      <progress value={index} max={length} aria-label="Completed states" />
-      <h2 id="question-title">Which state is this?</h2>
-      <figure className="quiz-outline">
-        <img
-          src={`${import.meta.env.BASE_URL}data/${question.shape}`}
-          alt="Outline of the state to identify"
-        />
-      </figure>
+      <progress
+        value={index}
+        max={session.questions.length}
+        aria-label="Completed states"
+      />
+      <h2 id="question-title">Identify the missing properties</h2>
+      <div className="quiz-clues">
+        {question.fields
+          .filter((field) => field.mode === 'show')
+          .map((field) => (
+            <figure className="quiz-outline" key={field.property.id}>
+              <figcaption>{field.property.label}</figcaption>
+              <Value
+                field={field}
+                value={field.value}
+                description={`${field.property.label} clue for this state`}
+              />
+            </figure>
+          ))}
+      </div>
       <form
         key={index}
         onSubmit={(event) => {
@@ -93,37 +84,97 @@ function ShapeQuiz({
           setSession((current) => submitAnswer(current, index, draft));
         }}
       >
-        <label htmlFor="state-answer">State name</label>
-        <input
-          id="state-answer"
-          className="answer-input"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          readOnly={!!result}
-          autoComplete="off"
-          spellCheck={false}
-          autoFocus
-        />
+        {answerFields.map((field, fieldIndex) => {
+          const feedback = result?.fields.find(
+            (item) => item.propertyId === field.property.id,
+          );
+          return (
+            <fieldset className="answer-field" key={field.property.id}>
+              <legend>{field.property.label}</legend>
+              {field.mode === 'fill-in' ? (
+                <>
+                  <label
+                    className="answer-label"
+                    htmlFor={`answer-${field.property.id}`}
+                  >
+                    Your answer
+                  </label>
+                  <input
+                    id={`answer-${field.property.id}`}
+                    className="answer-input"
+                    value={draft[field.property.id] ?? ''}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        [field.property.id]: event.target.value,
+                      })
+                    }
+                    readOnly={!!result}
+                    autoComplete="off"
+                    spellCheck={false}
+                    autoFocus={fieldIndex === 0}
+                  />
+                </>
+              ) : (
+                <div className="choice-grid">
+                  {field.options.map((option, optionIndex) => (
+                    <label className="choice" key={option.id}>
+                      <input
+                        type="radio"
+                        name={field.property.id}
+                        value={option.id}
+                        checked={draft[field.property.id] === option.id}
+                        disabled={!!result}
+                        autoFocus={fieldIndex === 0 && optionIndex === 0}
+                        onChange={() =>
+                          setDraft({ ...draft, [field.property.id]: option.id })
+                        }
+                      />
+                      <span>Option {optionIndex + 1}</span>
+                      <Value
+                        field={field}
+                        value={option.value}
+                        description={`${field.property.label}, option ${optionIndex + 1}`}
+                      />
+                    </label>
+                  ))}
+                </div>
+              )}
+              <div role="status">
+                {feedback && (
+                  <div className="field-feedback">
+                    <strong
+                      className={
+                        feedback.correct
+                          ? 'feedback-correct'
+                          : 'feedback-incorrect'
+                      }
+                    >
+                      {feedback.correct ? 'Correct!' : 'Incorrect.'}
+                    </strong>
+                    <p>
+                      Correct answer
+                      {field.correctOption
+                        ? `: Option ${field.options.findIndex((option) => option.id === field.correctOption) + 1}`
+                        : ':'}
+                    </p>
+                    <Value
+                      field={field}
+                      value={field.value}
+                      description={`Correct ${field.property.label.toLowerCase()} answer`}
+                    />
+                  </div>
+                )}
+              </div>
+            </fieldset>
+          );
+        })}
         {!result && (
           <button className="primary" type="submit">
-            Submit answer
+            {answerFields.length === 1 ? 'Submit answer' : 'Submit answers'}
           </button>
         )}
       </form>
-      <div role="status">
-        {result && (
-          <p>
-            <strong
-              className={
-                result.correct ? 'feedback-correct' : 'feedback-incorrect'
-              }
-            >
-              {result.correct ? 'Correct!' : 'Incorrect.'}
-            </strong>{' '}
-            The state is {question.name}.
-          </p>
-        )}
-      </div>
       <div className="quiz-actions">
         {result && (
           <button
@@ -131,10 +182,12 @@ function ShapeQuiz({
             autoFocus
             onClick={() => {
               setIndex(index + 1);
-              setDraft('');
+              setDraft({});
             }}
           >
-            {index + 1 === length ? 'See score' : 'Next state'}
+            {index + 1 === session.questions.length
+              ? 'See score'
+              : 'Next state'}
           </button>
         )}
         <button type="button" onClick={onBack}>

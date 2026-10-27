@@ -4,8 +4,8 @@ A geography quiz application, starting with the 50 US states. The React foundati
 
 ## Current capabilities
 
-* Implemented: React/Vite/TypeScript setup, responsive configurable homepage, capability-based property settings, quiz length controls, configuration validation and a playable outline-to-name quiz, 50 verified state records, local outline/flag SVGs, a review gallery, reproducible collection scripts, schema/factual/asset validation, formatting, linting, and type checking.
-* The default configuration now supports random questions without repeats, text answers, feedback, explicit advancement, a final score, and fresh restarts. Other property combinations still open a settings preview; full combination support and missed-answer review remain future work.
+* Implemented: React/Vite/TypeScript setup, responsive configurable homepage, capability-based property settings, quiz length controls, configuration validation and playable quizzes for every supported property combination, 50 verified state records, local outline/flag SVGs, a review gallery, reproducible collection scripts, schema/factual/asset validation, formatting, linting, and type checking.
+* Quizzes support text and image clues, name/capital fill-in, four-option text and image choices, multiple answer fields, field-level feedback, partial credit, explicit advancement, a final score, and fresh restarts. Questions and choices stay stable while answering. Missed-answer review remains future work.
 
 ## Development
 

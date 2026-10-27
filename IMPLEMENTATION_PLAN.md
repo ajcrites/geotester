@@ -320,7 +320,7 @@ Human verification completed (2026-10-21):
 
 ## Task 06 — All supported property combinations
 
-Status: Not started
+Status: Complete
 
 Goal: Fulfill the complete initial capability matrix.
 
@@ -341,6 +341,26 @@ Acceptance criteria:
 * A new property's capability definition can restrict its available modes without changing global mode assumptions.
 
 Dependencies: Task 05.
+
+Implementation and agent validation notes (2026-10-21):
+
+* Replaced the settings preview with registry-driven text/image clues, name/capital fill-in, and text/image radio choices. Multiple clues and answer fields work together; each field receives feedback and one possible point. Session generation validates capabilities and freezes question values/options before answering.
+* Multiple choice draws three distinct values from the full dataset and shuffles with the correct value exactly once. Neutral option IDs, labels and image alternatives avoid added answer names or visible filenames. Authentic flag lettering remains part of the collected designs; image alternatives identify clue type or option number, without describing detailed visual features.
+* Passed all seven domain tests, including exhaustive valid/invalid mode combinations, one-state choice sets, stable questions, partial scoring, capability restrictions, insufficient distinct values, sampling, normalization and duplicate/out-of-order submission. The initial sandbox run blocked tsx IPC; the approved rerun passed.
+* Passed formatting, ESLint and typecheck through `npx lefthook run pre-commit --force`; production build passed with real local data.
+* Browser checks: show name with outline/flag choices, show flag with capital choices, and show flag with two fill-in fields. Keyboard Space selected radio options; Enter submitted text. A one-state quiz completed, and a correct normalized name plus incorrect capital produced 1/2 (50%). Inspected 1280px desktop and 390px mobile layouts; image choices loaded with no mobile horizontal overflow. Configuration remained selected on return to setup.
+* Updated README and architecture. Task 07 remains Not started; missed-answer review and broader accessibility checks remain deferred.
+
+Human verification checklist:
+
+* Run `npm run dev`. Show flag and choose multiple-choice capital; complete a short quiz and confirm four choices, field feedback, and score.
+* Show state name and choose multiple choice for outline and flag. Confirm both image fields work at desktop/mobile widths and choices stay fixed while selecting answers.
+* Show an outline or flag and fill in both name and capital. Submit one correct and one incorrect answer; expect separate feedback and one of two possible points. Check keyboard selection/submission and return to preserved settings.
+
+Human verification completed (2026-10-27):
+
+* The user confirmed the changes are all set and requested committing Task 06. The reported Illinois/New Mexico image issue was withdrawn after the user identified a stopped URL; no asset changes were needed.
+* Task 07 remains Not started.
 
 ## Task 07 — Results, accessibility, and release checks
 
